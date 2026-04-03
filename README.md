@@ -1,72 +1,61 @@
 # 🍎 Apple Store Website Clone - Enterprise Edition
 
-Dự án mô phỏng cửa hàng trực tuyến của Apple với đầy đủ tính năng cho người dùng (Client) và quản trị viên (Admin Dashboard). Dự án được tối ưu hóa hiệu suất, hỗ trợ tiếng Việt toàn diện và tích hợp hệ thống báo cáo kinh doanh chuyên sâu.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+</p>
+
+Dự án mô phỏng cửa hàng trực tuyến của Apple với đầy đủ tính năng cho người dùng và quản trị viên. Được tối ưu hóa hiệu suất, hỗ trợ tiếng Việt toàn diện và tích hợp hệ thống báo cáo kinh doanh chuyên sâu.
+
+---
+
+## 📖 Mục lục
+- [🚀 Tính năng chính](#-tính-năng-chính)
+- [🏗️ Cấu trúc thư mục](#-cấu-trúc-thư-mục)
+- [🛠️ Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+- [🏁 Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
+- [📈 Tối ưu hóa gần đây](#-tối-ưu-hóa-gần-đây)
+
+---
 
 ## 🚀 Tính năng chính
 
 ### 🛒 Dành cho Khách hàng (Client)
-- **Giao diện chuẩn Apple**: Thiết kế tối giản, sang trọng với các hiệu ứng chuyển cảnh mượt mà.
-- **Tìm kiếm thông minh**: Tìm kiếm sản phẩm theo tên với tốc độ cực nhanh.
-- **So sánh sản phẩm**: Bảng so sánh thông số chi tiết giữa các dòng máy Mac, iPhone, iPad.
-- **Quản lý giỏ hàng & Yêu thích**: Thêm, sửa, xóa sản phẩm và lưu lại các sản phẩm yêu thích.
-- **Tài khoản cá nhân**: Xem lịch sử đơn hàng và quản lý thông tin cá nhân.
-- **Đa dạng tùy chọn**: Chọn màu sắc, dung lượng và xem giá thay đổi tương ứng.
+- **Giao diện chuẩn Apple**: Thiết kế tối giản, sang trọng, hiệu ứng mượt mà.
+- **Tìm kiếm & So sánh**: Tìm kiếm cực nhanh và so sánh thông số chi tiết (Mac, iPhone, iPad).
+- **Giỏ hàng & Yêu thích**: Quản lý mua sắm và lưu sản phẩm quan tâm.
+- **Tài khoản**: Xem lịch sử đơn hàng và thông tin cá nhân.
 
-### 📊 Dành cho Quản trị viên (Admin Dashboard)
-- **Bảng điều khiển (Dashboard)**: Biểu đồ doanh thu (Area Chart), doanh thu theo danh mục (Bar Chart), và phân bổ trạng thái đơn hàng (Pie Chart).
-- **Quản lý Sản phẩm**: Thêm, sửa, xóa và quản lý tồn kho sản phẩm.
-- **Quản lý Đơn hàng**: Theo dõi và cập nhật trạng thái đơn hàng (Chờ xử lý, Đã xác nhận, Đang giao, Đã giao, Đã hủy).
-- **Quản lý Người dùng**: Xem danh sách khách hàng và phân quyền quản trị.
-- **Quản lý Banner**: Tùy chỉnh các banner quảng cáo trên trang chủ.
-- **Báo cáo chuyên sâu**: Xuất dữ liệu kinh doanh ra file Excel (CSV) và tự động lưu trữ bản sao tại thư mục `excel/` của dự án.
+### 📊 Dành cho Quản trị viên (Admin)
+- **Bảng điều khiển**: Biểu đồ doanh thu, thống kê theo danh mục và đơn hàng (Pie/Bar Chart).
+- **Quản lý toàn diện**: Sản phẩm, Đơn hàng, Người dùng và Banner quảng cáo.
+- **Báo cáo chuyên sâu**: Xuất Excel (CSV) và tự động sao lưu vào thư mục `excel/`.
+
+---
 
 ## 🏗️ Cấu trúc thư mục
-
 ```text
 Apple/
 ├── client/        # Giao diện người dùng (React + Vite)
 ├── admin/         # Trang quản trị (React + Vite)
 ├── server/        # API và Logic máy chủ (Node.js + Express)
-├── excel/         # Thư mục lưu trữ các báo cáo đã xuất
-└── README.md      # Tài liệu dự án
-```
+├── excel/         # Thư mục lưu trữ báo cáo đã xuất
 
-## 🛠️ Công nghệ sử dụng
 
-- **Frontend**: React.js, Lucide Icons, Recharts (Biểu đồ), Tailwind/CSS.
-- **Backend**: Node.js, Express, MongoDB.
-- **State Management**: React Context API.
-- **Tools**: Vite, pnpm/npm.
 
-## 🏁 Hướng dẫn cài đặt và chạy
-
-### 1. Khởi động Server (API)
-```bash
-cd server
-pnpm install
-pnpm run dev
-```
-*Lưu ý: Bạn cần cấu hình file `.env` với `MONGO_URI` và `JWT_SECRET`.*
-
-### 2. Khởi động Client
-```bash
-cd client
-pnpm install
-pnpm dev
-```
-
-### 3. Khởi động Admin Dashboard
-```bash
-cd admin
-pnpm install
-pnpm dev
-```
-
-## 📈 Tối ưu hóa gần đây
-- **Localization**: Chuyển đổi toàn bộ giao diện và báo cáo sang tiếng Việt 100%.
-- **Performance**: Khắc phục lỗi "Cascading Render" bằng cách tối ưu hóa `useEffect` và đồng bộ hóa state trong render-phase.
-- **Fast Refresh**: Tách rời Reducer và Context để đảm bảo tính năng Hot Reload hoạt động ổn định.
-- **Local Archiving**: Tự động lưu bản sao báo cáo Excel vào local folder giúp truy xuất nhanh chóng.
-
----
-*Dự án được thực hiện bởi Team Apple Store Clone.*
+🛠️ Công nghệ sử dụng
+Frontend: React.js, Lucide Icons, Recharts, Tailwind/CSS.
+Backend: Node.js, Express, MongoDB.
+Tools: Vite, pnpm, Git.
+🏁 Hướng dẫn cài đặt
+Khởi động Server:
+bash
+cd server && pnpm install && pnpm run dev
+Khởi động Client:
+bash
+cd client && pnpm install && pnpm dev
+Khởi động Admin:
+bash
+cd admin && pnpm install && pnpm dev
