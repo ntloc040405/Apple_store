@@ -1,0 +1,18 @@
+﻿--- BÁO CÁO KINH DOANH ---
+Kỳ báo cáo:,30 ngày qua
+Thời điểm xuất:,4/3/2026, 10:09:03 PM
+
+--- TÓM TẮT VẬN HÀNH (EXECUTIVE SUMMARY) ---
+Tổng số đơn hàng:,1
+Doanh thu thực tế (Thành công):,4248.82
+Số đơn bị hủy:,0
+Doanh thu thất thoát (Bị hủy):,0
+
+--- TOP 5 SẢN PHẨM BÁN CHẠY NHẤT ---
+Xếp hạng,Tên sản phẩm,Số lượng bán,Doanh thu mang lại ($)
+1,"MacBook Pro 14" M4 Pro",1,1999
+2,"MacBook Air 15" M4",1,1899
+
+--- DỮ LIỆU ĐƠN HÀNG CHI TIẾT ---
+Mã đơn hàng,Ngày đặt,Tên khách hàng,Email khách hàng,Trạng thái,Chi tiết mặt hàng,Tổng tiền ($)
+"APL-20260403-001","4/3/2026, 4:04:38 PM","ád","ad@gmail.com","Đã giao","MacBook Pro 14" M4 Pro (x1); MacBook Air 15" M4 (x1)",4248.82
