@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAll, getFeatured, search, compare, getBySlug, getByCategory, getRelated, adminGetAll, create, update, remove, toggleActive } from '../controllers/productController.js';
+import { getAll, getFeatured, search, getSuggestions, compare, getBySlug, getByCategory, getRelated, adminGetAll, create, update, remove, toggleActive } from '../controllers/productController.js';
 import { auth, admin } from '../middleware/auth.js';
 
 const router = Router();
@@ -7,6 +7,7 @@ const router = Router();
 // Public routes (order matters — specific before :slug)
 router.get('/featured', getFeatured);
 router.get('/search', search);
+router.get('/suggestions', getSuggestions);
 router.get('/compare', compare);
 router.get('/category/:categorySlug', getByCategory);
 

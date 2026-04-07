@@ -10,6 +10,8 @@ services:
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
+    networks:
+      - apple_store_net
 
   # 2. Giao diện quản lý Database (Thay thế cho MongoDB Compass)
   mongo-express:
@@ -20,10 +22,64 @@ services:
       - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: admin
-      ME_CONFIG_BASICAUTH_PASSWORD: password
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER:-admin}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-change_me_in_production}
     depends_on:
       - mongodb
+    networks:
+      - apple_store_net
+
+  # 3. Backend API
+  app-server:
+    build: ./server
+    container_name: apple_store_server
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      MONGODB_URI: mongodb://mongodb:27017/apple-store
+      JWT_SECRET: ${JWT_SECRET:-apple_store_secret_key_change_in_production}
+      JWT_EXPIRE: 7d
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:4000
+    depends_on:
+      - mongodb
+    networks:
+      - apple_store_net
+
+  # 4. Frontend Client
+  app-client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: http://localhost:5001/api
+    container_name: apple_store_client
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - app-server
+    networks:
+      - apple_store_net
+
+  # 5. Frontend Admin
+  app-admin:
+    build:
+      context: ./admin
+      args:
+        VITE_API_URL: http://localhost:5001/api
+    container_name: apple_store_admin
+    restart: always
+    ports:
+      - "4000:80"
+    depends_on:
+      - app-server
+    networks:
+      - apple_store_net
+
+networks:
+  apple_store_net:
+    driver: bridge
 
 volumes:
   mongodb_data:

@@ -1,20 +1,15 @@
 # Dependency directories
 node_modules/
-jspm_packages/
 
-# Debug logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
+# Logs
+logs/
+*.log
 
-# Environment variables
+# Environment variables (IMPORTANT: Never commit these)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+*.local
 
 # OS files
 .DS_Store
@@ -23,8 +18,3 @@ Thumbs.db
 # Build/Dist
 dist/
 build/
-
-# Local data/logs
-logs/
-*.log
-excel/

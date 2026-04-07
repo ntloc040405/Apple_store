@@ -1,240 +1,226 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion'; // eslint-disable-line no-unused-vars
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Laptop, Smartphone, Tablet, Watch, Headphones, MapPin, Grid3x3, Glasses } from 'lucide-react';
 import API from '../api/client';
+import { ChevronRight, ArrowRight, Laptop, Smartphone, Tablet, Watch, Headphones, LayoutGrid, Sparkles, ChevronLeft } from 'lucide-react';
+import Carousel from '../components/common/Carousel';
 
-const catIcons = { mac: Laptop, iphone: Smartphone, ipad: Tablet, watch: Watch, airpods: Headphones, airtag: MapPin, accessories: Grid3x3, vision: Glasses };
 
-function FadeIn({ children, style = {}, delay = 0 }) {
+
+function FadeIn({ children, delay = 0 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-60px' });
+  const isInView = useInView(ref, { once: true, margin: '-10% 0px -10% 0px' });
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, y: 24 }} animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay, ease: [0.25, 0.1, 0.25, 1] }} style={style}>
+    <motion.div 
+      ref={ref} 
+      initial={{ opacity: 0, y: 30 }} 
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 1, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
       {children}
     </motion.div>
   );
 }
 
-/* ═══════════════ HERO ═══════════════ */
-function Hero({ banners }) {
-  const [i, setI] = useState(0);
-  const items = banners.length > 0 ? banners : [{ title: 'Apple Store', subtitle: 'Cách tốt nhất để mua các sản phẩm bạn yêu thích.', link: '/store', shopLink: '/store', textColor: 'light', bgColor: '#000' }];
-  const b = items[i % items.length];
-
-  useEffect(() => {
-    if (items.length <= 1) return;
-    const t = setInterval(() => setI(c => (c + 1) % items.length), 5000);
-    return () => clearInterval(t);
-  }, [items.length]);
-
-  const bgs = [
-    'radial-gradient(ellipse at 50% 30%, #1b2838 0%, #0d1117 70%, #000 100%)',
-    'linear-gradient(180deg, #f5f5f7 0%, #e8e8ed 100%)',
-    'radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, #0f0f2d 70%, #050510 100%)',
-  ];
-  const isLight = b.textColor !== 'dark';
-
-  return (
-    <section style={{ width: '100%', overflow: 'hidden', position: 'relative', background: b.bgColor || bgs[i % bgs.length], transition: 'background 0.7s' }}>
-      <div style={{ width: '100%', maxWidth: '980px', margin: '0 auto', padding: '96px 22px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: '580px' }}>
-        <motion.h2 key={`t${i}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-          style={{ fontSize: 'clamp(48px, 8vw, 80px)', fontWeight: 600, letterSpacing: '-0.015em', lineHeight: 1.05, color: isLight ? '#f5f5f7' : '#1d1d1f' }}>
-          {b.title}
-        </motion.h2>
-        <motion.p key={`s${i}`} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-          style={{ fontSize: 'clamp(21px, 3vw, 28px)', marginTop: '6px', color: isLight ? '#86868b' : '#6e6e73' }}>
-          {b.subtitle}
-        </motion.p>
-        <motion.div key={`l${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4, delay: 0.2 }}
-          style={{ display: 'flex', alignItems: 'center', gap: '24px', marginTop: '16px' }}>
-          <Link to={b.link || '/store'} style={{ fontSize: '21px', color: '#2997ff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-            Tìm hiểu thêm <ChevronRight size={16} />
-          </Link>
-          <Link to={b.shopLink || '/store'} style={{ fontSize: '21px', color: '#2997ff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-            Mua <ChevronRight size={16} />
-          </Link>
-        </motion.div>
-      </div>
-      <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '8px' }}>
-        {items.map((_, idx) => (
-          <button key={idx} onClick={() => setI(idx)}
-            style={{ width: idx === i ? '24px' : '6px', height: '6px', borderRadius: '3px', border: 'none', cursor: 'pointer', background: idx === i ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.25)', transition: 'all 0.4s' }} />
-        ))}
-      </div>
-      {items.length > 1 && <>
-        <button onClick={() => setI(c => (c - 1 + items.length) % items.length)}
-          style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '36px', height: '36px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ChevronLeft size={18} />
-        </button>
-        <button onClick={() => setI(c => (c + 1) % items.length)}
-          style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', width: '36px', height: '36px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <ChevronRight size={18} />
-        </button>
-      </>}
-    </section>
-  );
-}
-
-/* ═══════════════ CATEGORY NAV ═══════════════ */
-function CategoryNav({ categories }) {
-  return (
-    <div style={{ width: '100%', background: '#fff' }}>
-      <div style={{ width: '100%', maxWidth: '980px', margin: '0 auto', padding: '16px 22px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', overflowX: 'auto' }} className="hide-scrollbar">
-          {categories.map(cat => {
-            const Icon = catIcons[cat.slug] || Grid3x3;
-            return (
-              <Link key={cat._id || cat.slug} to={`/category/${cat.slug}`}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', flexShrink: 0, opacity: 0.75, textDecoration: 'none', transition: 'opacity 0.3s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '0.75'}>
-                <Icon size={24} strokeWidth={1.5} color="#1d1d1f" />
-                <span style={{ fontSize: '11px', color: '#1d1d1f', whiteSpace: 'nowrap' }}>{cat.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════ PROMO CARD ═══════════════ */
-function PromoCard({ product, dark }) {
-  const bg = dark ? '#000' : '#f5f5f7';
-  const textMain = dark ? '#f5f5f7' : '#1d1d1f';
-  const textSub = dark ? '#86868b' : '#6e6e73';
-
-  return (
-    <Link to={`/product/${product.slug}`} style={{ display: 'block', textDecoration: 'none', background: bg, width: '100%' }}>
-      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '52px 24px 40px', minHeight: '540px' }}>
-        <h2 style={{ fontSize: 'clamp(36px, 5vw, 48px)', fontWeight: 600, letterSpacing: '-0.003em', lineHeight: 1.07, color: textMain }}>
-          {product.name}
-        </h2>
-        <p style={{ fontSize: '17px', marginTop: '4px', color: textSub }}>{product.tagline}</p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '12px' }}>
-          <span style={{ fontSize: '17px', color: '#2997ff', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>Tìm hiểu thêm <ChevronRight size={13} /></span>
-          <span style={{ fontSize: '17px', color: '#2997ff', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>Mua <ChevronRight size={13} /></span>
-        </div>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '24px', width: '100%', maxWidth: '400px' }}>
-          {product.thumbnail && <img src={product.thumbnail} alt={product.name}
-            style={{ maxHeight: '300px', width: 'auto', objectFit: 'contain', transition: 'transform 0.7s' }}
-            onError={e => { e.target.onerror = null; e.target.style.opacity = '0'; }} />}
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-/* ═══════════════ LATEST SCROLL ═══════════════ */
-function LatestScroll({ products }) {
-  const ref = useRef(null);
-  const scroll = d => ref.current?.scrollBy({ left: d * 320, behavior: 'smooth' });
-
-  if (!products.length) return null;
-
-  return (
-    <section style={{ width: '100%', background: '#f5f5f7' }}>
-      <div style={{ width: '100%', maxWidth: '980px', margin: '0 auto', padding: '64px 22px 80px' }}>
-        <FadeIn>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 600, letterSpacing: '-0.005em', lineHeight: 1.1 }}>
-            <span style={{ color: '#1d1d1f' }}>Mới nhất. </span>
-            <span style={{ color: '#6e6e73' }}>Xem ngay những gì vừa ra mắt.</span>
-          </h2>
-        </FadeIn>
-        <div style={{ position: 'relative', marginTop: '32px' }}>
-          <button onClick={() => scroll(-1)} style={{ position: 'absolute', left: '-12px', top: '38%', zIndex: 10, width: '36px', height: '36px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><ChevronLeft size={18} /></button>
-          <button onClick={() => scroll(1)} style={{ position: 'absolute', right: '-12px', top: '38%', zIndex: 10, width: '36px', height: '36px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1d1d1f' }}><ChevronRight size={18} /></button>
-          <div ref={ref} className="hide-scrollbar" style={{ display: 'flex', gap: '12px', overflowX: 'auto', scrollBehavior: 'smooth', paddingBottom: '8px' }}>
-            {products.map((p, idx) => (
-              <FadeIn key={p._id || idx} delay={idx * 0.05}>
-                <Link to={`/product/${p.slug}`}
-                  style={{ display: 'block', flexShrink: 0, width: '310px', background: '#fff', borderRadius: '18px', overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.3s' }}
-                  onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)'}
-                  onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-                  <div style={{ height: '240px', background: '#fafafa', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-                    {p.thumbnail && <img src={p.thumbnail} alt={p.name} style={{ maxHeight: '200px', width: 'auto', objectFit: 'contain' }} onError={e => { e.target.style.opacity = '0'; }} />}
-                  </div>
-                  <div style={{ padding: '12px 20px 20px' }}>
-                    {p.isNewProduct && <span style={{ fontSize: '12px', fontWeight: 500, color: '#bf4800' }}>Mới</span>}
-                    <h3 style={{ fontSize: '19px', fontWeight: 600, color: '#1d1d1f', lineHeight: 1.21 }}>{p.name}</h3>
-                    <p style={{ fontSize: '14px', color: '#6e6e73', marginTop: '2px', lineHeight: 1.28, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{p.tagline}</p>
-                    <p style={{ fontSize: '14px', color: '#1d1d1f', marginTop: '12px' }}>
-                      Từ <strong>${p.price?.toLocaleString()}</strong>
-                      {p.monthlyPrice && <span style={{ color: '#6e6e73' }}> hoặc ${p.monthlyPrice}/tháng.</span>}
-                    </p>
-                    {p.colors?.length > 1 && (
-                      <div style={{ display: 'flex', gap: '4px', marginTop: '8px' }}>
-                        {p.colors.slice(0, 4).map(c => (
-                          <span key={c.name} style={{ width: '10px', height: '10px', borderRadius: '50%', border: '1px solid #d2d2d7', background: c.hex }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ═══════════════ HOME ═══════════════ */
 export default function Home() {
   const [banners, setBanners] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [highlights, setHighlights] = useState([]);
-  const [newArrivals, setNewArrivals] = useState([]);
+  const [featured, setFeatured] = useState({ highlights: [], newArrivals: [] });
   const [loading, setLoading] = useState(true);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
-    Promise.all([
-      API.get('/banners').catch(() => ({ data: { data: [] } })),
-      API.get('/categories').catch(() => ({ data: { data: [] } })),
-      API.get('/products/featured').catch(() => ({ data: { data: { highlights: [], newArrivals: [] } } })),
-    ]).then(([bannersRes, catsRes, featuredRes]) => {
-      setBanners(bannersRes.data.data);
-      setCategories(catsRes.data.data);
-      setHighlights(featuredRes.data.data.highlights || []);
-      setNewArrivals(featuredRes.data.data.newArrivals || []);
-    }).finally(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        const [bnRes, featRes] = await Promise.all([
+          API.get('/banners'),
+          API.get('/products/featured')
+        ]);
+        setBanners(bnRes.data.data);
+        setFeatured(featRes.data.data);
+      } catch (err) {
+        console.error('Home data error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
+  // Auto-slide for Hero
+  useEffect(() => {
+    if (!loading && banners.filter(b => b.type === 'main').length > 1) {
+      const timer = setInterval(() => {
+        setHeroIndex(prev => (prev + 1) % banners.filter(b => b.type === 'main').length);
+      }, 6000);
+      return () => clearInterval(timer);
+    }
+  }, [loading, banners]);
+
   if (loading) return (
-    <main style={{ paddingTop: '44px', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', color: '#86868b' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid #e8e8ed', borderTopColor: '#1d1d1f', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-        Đang tải...
-      </div>
-    </main>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
+      <motion.div 
+        animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.3, 0.6, 0.3] }} 
+        transition={{ repeat: Infinity, duration: 2 }}
+        className="mono-display"
+        style={{ color: '#fff', fontSize: '14px', letterSpacing: '0.5em' }}
+      >
+        INIT_SYSTEM_V.4.2
+      </motion.div>
+    </div>
   );
 
-  const cards = highlights.slice(0, 6);
+  const mainBanners = banners.filter(b => b.type === 'main');
+  const secondaryBanners = banners.filter(b => b.type === 'secondary');
+  const extraBanner = banners.find(b => b.type === 'extra');
 
   return (
-    <main style={{ paddingTop: '44px' }}>
-      <Hero banners={banners} />
-      <CategoryNav categories={categories} />
-      <section style={{ width: '100%' }}>
-        {Array.from({ length: Math.ceil(cards.length / 2) }, (_, row) => {
-          const pair = cards.slice(row * 2, row * 2 + 2);
-          return (
-            <div key={row} style={{ display: 'grid', gridTemplateColumns: pair.length === 2 ? '1fr 1fr' : '1fr', gap: '12px', marginBottom: '12px' }}>
-              {pair.map((p, col) => (
-                <FadeIn key={p._id} delay={col * 0.08}>
-                  <PromoCard product={p} dark={(row + col) % 2 === 0} />
+    <main style={{ backgroundColor: '#fff' }}>
+      {/* ── HERO BANNER SLIDER (CINEMATIC) ── */}
+      {mainBanners.length > 0 && (
+        <section style={{ height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#000' }}>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={mainBanners[heroIndex]._id}
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 1, ease: 'easeInOut' }}
+              style={{ 
+                position: 'absolute', inset: 0, 
+                backgroundColor: mainBanners[heroIndex].bgColor || '#000',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                textAlign: 'center', color: mainBanners[heroIndex].textColor || '#fff'
+              }}
+            >
+              <div style={{ zIndex: 10, maxWidth: '1000px', padding: '0 24px', position: 'relative' }}>
+                <FadeIn>
+                  <p className="mono-display" style={{ marginBottom: '32px', opacity: 0.8, letterSpacing: '0.6em', fontSize: '12px' }}>THE_NEXT_FRONTIER</p>
+                  <h1 style={{ fontSize: 'clamp(56px, 12vw, 120px)', lineHeight: 0.82, fontWeight: 800, letterSpacing: '-0.05em', marginBottom: '40px', maxWidth: '900px' }}>
+                    {mainBanners[heroIndex].title}
+                  </h1>
+                  <p style={{ fontSize: '24px', opacity: 0.8, fontWeight: 500, marginBottom: '60px', maxWidth: '600px', margin: '0 auto 60px' }}>{mainBanners[heroIndex].subtitle}</p>
+                  <div style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
+                    <Link to={mainBanners[heroIndex].link} className="apple-btn apple-btn-primary" style={{ padding: '20px 56px', fontSize: '18px' }}>Trải nghiệm ngay</Link>
+                    {mainBanners[heroIndex].shopLink && (
+                      <Link to={mainBanners[heroIndex].shopLink} style={{ display: 'flex', alignItems: 'center', color: mainBanners[heroIndex].textColor === 'dark' ? '#1d1d1f' : '#fff', textDecoration: 'none', fontSize: '20px', fontWeight: 600, border: '1px solid currentColor', padding: '0 32px', borderRadius: '40px' }}>
+                        Khám phá thêm <ChevronRight size={20} />
+                      </Link>
+                    )}
+                  </div>
                 </FadeIn>
+              </div>
+              {mainBanners[heroIndex].image && (
+                <div style={{ position: 'absolute', inset: 0 }}>
+                  <img 
+                    src={mainBanners[heroIndex].image.startsWith('/') ? 'http://localhost:5000' + mainBanners[heroIndex].image : mainBanners[heroIndex].image} 
+                    alt="" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} 
+                  />
+                </div>
+              )}
+              {/* Smooth Transition Overlay */}
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '20vh', background: `linear-gradient(to top, rgba(255,255,255,1), transparent)`, zIndex: 2 }} />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Slider Controls - Moved up to avoid overlap */}
+          {mainBanners.length > 1 && (
+            <div style={{ position: 'absolute', bottom: '100px', right: '60px', zIndex: 100, display: 'flex', gap: '12px' }}>
+              {mainBanners.map((_, i) => (
+                <button 
+                  key={i}
+                  onMouseEnter={() => setHeroIndex(i)}
+                  style={{ 
+                    width: '40px', height: '3px', background: i === heroIndex ? '#0071e3' : 'rgba(255,255,255,0.4)',
+                    border: 'none', cursor: 'pointer', transition: 'all 0.3s', borderRadius: '10px'
+                  }}
+                />
               ))}
             </div>
-          );
-        })}
-      </section>
-      <LatestScroll products={newArrivals} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          )}
+        </section>
+      )}
+
+      {/* ── PROMO GRID ── */}
+      {secondaryBanners.length > 0 && (
+        <section style={{ 
+          padding: '80px 20px', 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 1fr))', 
+          gap: '30px', 
+          position: 'relative', 
+          zIndex: 10 
+        }}>
+          {secondaryBanners.map((bn, i) => (
+            <FadeIn key={bn._id} delay={i * 0.1}>
+              <div style={{ 
+                height: '640px', borderRadius: '32px', overflow: 'hidden', position: 'relative', 
+                backgroundColor: bn.bgColor || '#f5f5f7', color: bn.textColor || '#1d1d1f',
+                padding: '60px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+              }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.01)'; e.currentTarget.style.boxShadow = '0 30px 60px rgba(0,0,0,0.1)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.03)'; }}>
+                <div style={{ position: 'relative', zIndex: 2 }}>
+                  <h2 style={{ fontSize: '48px', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '16px' }}>{bn.title}</h2>
+                  <p style={{ fontSize: '21px', opacity: 0.8, marginBottom: '32px', maxWidth: '400px' }}>{bn.subtitle}</p>
+                  <div style={{ display: 'flex', gap: '24px' }}>
+                    <Link to={bn.link} style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: bn.textColor || '#0066cc', fontWeight: 600, fontSize: '19px' }}>Mua <ChevronRight size={18} /></Link>
+                    <Link to={bn.shopLink} style={{ display: 'flex', alignItems: 'center', gap: '4px', textDecoration: 'none', color: bn.textColor || '#0066cc', fontWeight: 600, fontSize: '19px' }}>Xem thêm <ChevronRight size={18} /></Link>
+                  </div>
+                </div>
+                {bn.image && <img src={bn.image.startsWith('/') ? 'http://localhost:5000' + bn.image : bn.image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7, zIndex: 1 }} />}
+              </div>
+            </FadeIn>
+          ))}
+        </section>
+      )}
+
+      {/* ── LATEST PRODUCTS SLIDER ── */}
+      <Carousel title="Sản phẩm mới nhất." subtitle="CRAFTED_FOR_PERFECTION">
+        {featured.newArrivals.map((prod) => (
+          <Link key={prod._id} to={`/product/${prod.slug}`} className="card-premium" style={{ width: '400px', height: '540px', background: '#f5f5f7', color: '#1d1d1f', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '40px', textDecoration: 'none', position: 'relative' }}>
+            <div style={{ zIndex: 2 }}>
+               <h3 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>{prod.name}</h3>
+               <p style={{ fontSize: '16px', opacity: 0.7, marginBottom: '40px' }}>{prod.tagline}</p>
+            </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+              <img src={prod.thumbnail} alt="" style={{ height: '220px', objectFit: 'contain' }} />
+            </div>
+            <div style={{ position: 'absolute', bottom: '30px', right: '30px', zIndex: 2 }}>
+               <span className="apple-btn apple-btn-dark" style={{ padding: '8px 24px', borderRadius: '100px', fontSize: '13px' }}>Mua ngay</span>
+            </div>
+          </Link>
+        ))}
+      </Carousel>
+
+
+
+
+      {/* ── EXTRA PROMO ── */}
+      {extraBanner && (
+        <section style={{ padding: '80px 20px' }}>
+          <FadeIn>
+            <Link to={extraBanner.link} style={{ display: 'block', height: '600px', background: extraBanner.bgColor || '#000', borderRadius: '40px', overflow: 'hidden', position: 'relative', textDecoration: 'none' }}>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: extraBanner.textColor || '#fff', zIndex: 2, padding: '40px' }}>
+                <div>
+                  <Sparkles size={40} style={{ marginBottom: '24px', opacity: 0.8 }} color="#0071e3" />
+                  <h2 style={{ fontSize: '64px', fontWeight: 800, marginBottom: '20px', letterSpacing: '-0.04em' }}>{extraBanner.title}</h2>
+                  <p style={{ fontSize: '24px', opacity: 0.8, maxWidth: '600px' }}>{extraBanner.subtitle}</p>
+                </div>
+              </div>
+              {extraBanner.image && <img src={extraBanner.image.startsWith('/') ? 'http://localhost:5000' + extraBanner.image : extraBanner.image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />}
+            </Link>
+          </FadeIn>
+        </section>
+      )}
+
+
+
+      <style>{`
+          .hide-scrollbar::-webkit-scrollbar { display: none; }
+          .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          .link-hover:hover { text-decoration: underline !important; }
+      `}</style>
     </main>
   );
 }

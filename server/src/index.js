@@ -1,7 +1,12 @@
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { v4 as uuidv4 } from 'uuid';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import config from './config/index.js';
 import connectDB from './config/db.js';
+import { securityHeaders, httpsRedirect } from './middleware/security.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -13,11 +18,40 @@ import reviewRoutes from './routes/reviews.js';
 import bannerRoutes from './routes/banners.js';
 import wishlistRoutes from './routes/wishlist.js';
 import adminRoutes from './routes/admin.js';
+import blogRoutes from './routes/blogRoutes.js';
+import uploadRoutes from './routes/upload.js';
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// ════════════════════════════════════════════
+// SECURITY & CORE MIDDLEWARE
+// ════════════════════════════════════════════
+app.use(httpsRedirect);
+
+// Add request ID to all requests for tracking
+app.use((req, res, next) => {
+  req.id = uuidv4();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
+
+app.use(securityHeaders);
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+  'http://localhost:3000', 
+  'http://localhost:3001', 
+  'http://localhost:4000',
+  'http://localhost:4001',
+  'http://localhost:5173'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -34,6 +68,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/blogs', blogRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -54,9 +90,28 @@ app.use((err, req, res, next) => {
 // Start
 const start = async () => {
   await connectDB();
-  app.listen(config.port, () => {
+  const httpServer = createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: allowedOrigins,
+      credentials: true,
+    },
+  });
+
+  // Store io instance globally for use in routes
+  globalThis.io = io;
+
+  io.on('connection', (socket) => {
+    console.log('✅ Client connected:', socket.id);
+    socket.on('disconnect', () => {
+      console.log('❌ Client disconnected:', socket.id);
+    });
+  });
+
+  httpServer.listen(config.port, () => {
     console.log(`🚀 Server running on http://localhost:${config.port}`);
     console.log(`📦 API: http://localhost:${config.port}/api`);
+    console.log(`🔌 WebSocket: ws://localhost:${config.port}`);
   });
 };
 

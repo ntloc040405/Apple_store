@@ -2,6 +2,8 @@
 
 :root {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'SF Mono', 'Roboto Mono', 'Fira Code', monospace;
+  
   --color-apple-blue: #0071e3;
   --color-apple-blue-hover: #0077ed;
   --color-apple-blue-light: #2997ff;
@@ -11,6 +13,13 @@
   --color-apple-gray-200: #e8e8ed;
   --color-apple-gray-300: #d2d2d7;
   --color-apple-gray-400: #86868b;
+  
+  --glass-bg: rgba(22, 22, 23, 0.72);
+  --glass-blur: saturate(180%) blur(20px);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  --tech-cyan: #00f2ff;
+  --tech-magenta: #ff00ff;
 }
 
 /* ── Reset ── */
@@ -24,72 +33,147 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-sans);
-  color: #1d1d1f;
+  color: var(--color-apple-text);
   background: #fff;
   line-height: 1.47059;
   letter-spacing: -0.022em;
   overflow-x: hidden;
-  width: 100%;
 }
 
-/* ── Đảm bảo không overflow ngang ── */
-#root {
-  overflow-x: hidden;
-  width: 100%;
+/* ── Typography (Editorial/Tech) ── */
+h1, h2, h3 {
+  letter-spacing: -0.015em;
+  font-weight: 700;
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.mono-display {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 
-/* ── Apple Button ── */
+/* ── Glassmorphism ── */
+.glass-nav {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-dropdown {
+  background: rgba(22, 22, 23, 0.95);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* ── Buttons (Apple Style) ── */
 .apple-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 22px;
-  border-radius: 980px;
-  font-size: 17px;
-  line-height: 1.17648;
-  font-weight: 400;
-  letter-spacing: -0.022em;
+  padding: 12px 24px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   cursor: pointer;
   border: none;
-  transition: all 0.3s ease;
-  white-space: nowrap;
   text-decoration: none;
 }
+
 .apple-btn-primary {
-  background: #0071e3;
+  background: var(--color-apple-blue);
   color: #fff;
 }
-.apple-btn-primary:hover { background: #0077ed; }
-.apple-btn-outline {
-  background: transparent;
-  color: #0071e3;
-  border: 1.5px solid #0071e3;
-}
-.apple-btn-outline:hover { background: #0071e3; color: #fff; }
 
-/* ── Apple Link ── */
-.apple-link {
-  color: #0071e3;
-  text-decoration: none;
-  cursor: pointer;
+.apple-btn-primary:hover {
+  background: #0077ed;
+  transform: scale(1.02);
 }
-.apple-link:hover { text-decoration: underline; }
 
-/* ── Utilities ── */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.apple-btn-dark {
+  background: #1d1d1f;
+  color: #fff;
 }
-.hide-scrollbar::-webkit-scrollbar { display: none; }
 
-img { max-width: 100%; height: auto; }
+.apple-btn-dark:hover {
+  background: #000;
+  transform: scale(1.02);
+}
+
+/* ── Animations ── */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.reveal-up {
+  animation: revealUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Grid Layouts ── */
+.editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+}
+
+/* ── Product Cards ── */
+.card-premium {
+  background: #f5f5f7;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+.card-premium:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+}
+
+.card-premium img {
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-premium:hover img {
+  transform: scale(1.05);
+}
+
+/* ── Form Inputs ── */
+.input-tech {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-tech:focus {
+  border-color: var(--color-apple-blue);
+}
+
+/* ── Scrollbar Customization ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d2d2d7;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #86868b;
+}

@@ -1,39 +1,30 @@
-# 🍎 Apple Store Website Clone - Enterprise Edition
+# 🍎 Apple Store Modern Full-Stack - Premium Edition
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
-</p>
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white) ![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white) ![Framer Motion](https://img.shields.io/badge/Framer--Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white) ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 
-Dự án mô phỏng cửa hàng trực tuyến của Apple với đầy đủ tính năng cho người dùng và quản trị viên. Được tối ưu hóa hiệu suất, hỗ trợ tiếng Việt toàn diện và tích hợp hệ thống báo cáo kinh doanh chuyên sâu.
+## 🌟 Tổng quan dự án
+
+Đây là phiên bản nâng cấp toàn diện của hệ thống Apple Store Full-Stack. Dự án không chỉ tập trung vào giao diện chuẩn Apple sang trọng mà còn tích hợp hệ thống quản trị **Real-time** mạnh mẽ và quy trình triển khai **Docker** chuyên nghiệp.
 
 ---
 
-## 📖 Mục lục
+## 🚀 Tính năng nổi bật
 
-- [🚀 Tính năng chính](#-tính-năng-chính)
-- [🏗️ Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-- [🛠️ Công nghệ sử dụng](#-công-nghệ-sử-dụng)
-- [🏁 Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
----
+### ⚡ Real-time Admin Dashboard
 
-## 🚀 Tính năng chính
+- **Đồng bộ tức thì**: Nhận thông báo đơn hàng (Notification Bell), cập nhật sản phẩm và danh mục ngay lập tức qua Socket.io mà không cần tải lại trang.
+- **Hiệu ứng Premium**: Các con số thống kê tự động nhảy (Count-up animation) và danh sách hiển thị mượt mà với Framer Motion.
+- **Silent Refresh**: Hệ thống tự động cập nhật dữ liệu ngầm, đảm bảo trải nghiệm quản trị không bị gián đoạn bởi các màn hình loading.
 
-### 🛒 Dành cho Khách hàng (Client)
+### 🎨 Trải nghiệm Người dùng (Client)
 
-- **Giao diện chuẩn Apple**: Thiết kế tối giản, sang trọng, hiệu ứng mượt mà.
-- **Tìm kiếm & So sánh**: Tìm kiếm cực nhanh và so sánh thông số chi tiết (Mac, iPhone, iPad).
-- **Giỏ hàng & Yêu thích**: Quản lý mua sắm và lưu sản phẩm quan tâm.
-- **Tài khoản**: Xem lịch sử đơn hàng và thông tin cá nhân.
+- **Thiết kế tinh tế**: Giao diện tối giản, hiệu ứng chuyển cảnh chuẩn Apple.
+- **Chức năng đầy đủ**: Giỏ hàng, Yêu thích, Tìm kiếm thông minh và quy trình thanh toán mượt mà.
 
-### 📊 Dành cho Quản trị viên (Admin)
+### 🐳 Triển khai Docker chuyên nghiệp
 
-- **Bảng điều khiển**: Biểu đồ doanh thu, thống kê theo danh mục và đơn hàng (Pie/Bar Chart).
-- **Quản lý toàn diện**: Sản phẩm, Đơn hàng, Người dùng và Banner quảng cáo.
-- **Báo cáo chuyên sâu**: Xuất Excel (CSV) và tự động sao lưu vào thư mục `excel/`.
+- **Một lệnh duy nhất**: Khởi chạy toàn bộ hệ thống (Server, Client, Admin, Database) chỉ với `docker-compose`.
+- **Nginx Production**: Sử dụng Nginx làm web server cho các ứng dụng React, tối ưu hóa tốc độ và bảo mật.
 
 ---
 
@@ -41,70 +32,77 @@ Dự án mô phỏng cửa hàng trực tuyến của Apple với đầy đủ t
 
 ```text
 Apple/
-├── client/        # Giao diện người dùng (React + Vite)
-├── admin/         # Trang quản trị (React + Vite)
-├── server/        # API và Logic máy chủ (Node.js + Express)
-├── excel/         # Thư mục lưu trữ báo cáo đã xuất
+├── server/        # Backend API (Node.js/Express + Socket.io)
+├── client/        # Giao diện khách hàng (Vite/React)
+├── admin/         # Trang quản trị hiện đại (Vite/React + Framer Motion)
+├── docker-compose.yml  # Cấu hình điều phối container
+└── .gitignore     # Quản lý mã nguồn monorepo
 ```
+
+---
+
+## 🏁 Hướng dẫn khởi chạy
+
+### 🐳 Cách 1: Sử dụng Docker (Khuyên dùng - Không cần cài đặt Database)
+
+Yêu cầu: Máy đã cài đặt Docker & Docker Compose. **Đặc biệt: Bạn không cần cài đặt MongoDB Compass vì hệ thống đã tích hợp sẵn giao diện quản trị Web.**
+
+1. **Khởi chạy toàn bộ hệ thống**:
+
+    ```bash
+    # Bước 1: Tạo cấu hình từ mẫu
+    cp .env.example .env
+
+    # Bước 2: Build và chạy container
+    docker-compose up --build -d
+    ```
+
+2. **Truy cập các dịch vụ**:
+    - **Client (Người mua)**: `http://localhost:3000`
+    - **Admin (Quản lý)**: `http://localhost:4000`
+    - **API Server**: `http://localhost:5001`
+    - **Database UI (Thay thế Compass)**: `http://localhost:8081` (Dùng để xem và sửa dữ liệu trực tiếp trên trình duyệt)
+
+### 🛠️ Cách 2: Khởi chạy thủ công (Dành cho Developer)
+
+1. **Khởi tạo Database**: Đảm bảo MongoDB đang chạy tại cổng 27017.
+
+2. **Setup Server**:
+
+    ```bash
+    cd server
+    npm install
+    npm run dev
+    ```
+
+3. **Setup Frontends**:
+
+    ```bash
+    # Terminal 1 (Client)
+    cd client && npm install && npm run dev
+
+    # Terminal 2 (Admin)
+    cd admin && npm install && npm run dev
+    ```
+
+---
+
+## 🔑 Biến môi trường (Environment Variables)
+
+Xem chi tiết tại các tệp mẫu:
+
+- [Server .env.example](server/.env.example)
+- [Client .env.example](client/.env.example)
+- [Admin .env.example](admin/.env.example)
 
 ---
 
 ## 🛠️ Công nghệ sử dụng
 
-- **Frontend**: React.js, Lucide Icons, Recharts, Tailwind/CSS.
-- **Backend**: Node.js, Express, MongoDB.
-- **Tools**: Vite, pnpm, Git, Docker.
+- **Frontend**: React.js, Vite, Framer Motion, Recharts, Lucide React.
+- **Backend**: Node.js, Express, MongoDB (Mongoose), Socket.io.
+- **Infrastructure**: Docker, Docker Compose, Nginx Alpine.
 
 ---
 
-## 🏁 Hướng dẫn cài đặt
-
-Dự án này có 2 cách chạy: Bằng Docker (khuyên dùng) hoặc chạy thủ công truyền thống.
-
-### Cách 1: Sử dụng Docker (Khuyên dùng)
-
-Dành cho người mới tải dự án, không cần cài cấu hình MongoDB hay Compass phức tạp.
-
-1. Khởi động Database (MongoDB):
-   ```bash
-   docker-compose up -d
-   ```
-   *(Theo dõi Database qua trình duyệt tại `http://localhost:8081` với tài khoản `admin` / `password`)*
-
-2. Khởi tạo dữ liệu mẫu (Seeding) để web có sẵn sản phẩm:
-   ```bash
-   cd server
-   pnpm install
-   pnpm run seed
-   ```
-
-### Cách 2: Chạy thủ công truyền thống
-
-Dành cho máy đã có sẵn MongoDB hoặc muốn phát triển sâu vào code.
-
-1. **Khởi động Server**:
-   ```bash
-   cd server
-   pnpm install
-   pnpm run dev
-   ```
-
-2. **Khởi động Client**:
-   ```bash
-   cd client
-   pnpm install
-   pnpm dev
-   ```
-
-3. **Khởi động Admin**:
-   ```bash
-   cd admin
-   pnpm install
-   pnpm dev
-   ```
-
-
-
-
----
-*Created with ❤️ by loclacloi team.*
+*Dự án được hiện đại hóa với ❤️ để mang lại trải nghiệm thương mại điện tử đẳng cấp nhất.*

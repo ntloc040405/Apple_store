@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {  motion, AnimatePresence } from 'framer-motion'; // eslint-disable-line no-unused-vars
+import { ArrowRight, Apple } from 'lucide-react';
 
 export default function Login() {
   const { user, login } = useAuth();
@@ -23,39 +25,109 @@ export default function Login() {
   };
 
   return (
-    <main style={{ paddingTop: '44px', minHeight: '100vh', background: '#f5f5f7' }}>
-      <div style={{ maxWidth: '400px', margin: '0 auto', padding: '80px 22px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <svg width="44" height="52" viewBox="0 0 814 1000" fill="#1d1d1f" style={{ display: 'block', margin: '0 auto 16px' }}>
-            <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76.5 0-103.7 40.8-165.9 40.8s-105.6-57.8-155.5-127.4c-58.3-81.6-104.7-207.8-104.7-328.1 0-192.8 125.2-295.4 248.4-295.4 65.5 0 120 43.4 161.1 43.4 39.2 0 100.3-46 175.1-46 28.3 0 130 2.5 197.7 95.5zm-283-89.8c30.7-36.7 52.5-87.5 52.5-138.3 0-7-0.6-14.2-1.9-20-50.1 1.9-109.6 33.3-145.5 75.1-25.7 29.5-53.2 80.3-53.2 131.9 0 7.7 1.3 15.4 1.9 17.9 3.2 0.6 8.4 1.3 13.5 1.3 45.2 0 102.5-30.1 132.7-67.9z"/>
-          </svg>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#1d1d1f' }}>Đăng nhập vào Apple Store</h1>
+    <main style={{ minHeight: '100vh', display: 'flex', backgroundColor: '#000' }}>
+      {/* Left: Branding/Visual Side - Only on larger screens */}
+      <div style={{ 
+        flex: 1, 
+        position: 'relative', 
+        display: window.innerWidth >= 1024 ? 'flex' : 'none', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #1d1d1f 0%, #2d2d2f 50%, #1d1d1f 100%)'
+      }}>
+        {/* Animated gradient blobs */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '-20%', 
+          left: '-10%', 
+          width: '50%', 
+          height: '50%', 
+          background: 'radial-gradient(circle, rgba(0,242,255,0.15) 0%, transparent 70%)',
+          animation: 'float 15s ease-in-out infinite'
+        }} />
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '-20%', 
+          right: '-10%', 
+          width: '50%', 
+          height: '50%', 
+          background: 'radial-gradient(circle, rgba(255,0,127,0.08) 0%, transparent 70%)',
+          animation: 'float 20s ease-in-out infinite 2s'
+        }} />
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(-40px) translateX(-10px); }
+            75% { transform: translateY(-20px) translateX(10px); }
+          }
+        `}</style>
+        
+        {/* Content */}
+        <div style={{ zIndex: 10, textAlign: 'center', padding: '0 60px' }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <Apple size={80} color="#fff" style={{ marginBottom: '40px', opacity: 0.9 }} />
+            <h1 style={{ fontSize: '72px', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: '20px' }}>
+              Smarter.<br/>Better.<br/>Stronger.
+            </h1>
+            <p style={{ fontSize: '21px', color: '#a1a1a6', maxWidth: '400px', margin: '30px auto 0' }}>
+              Chào mừng bạn trở lại với trải nghiệm mua sắm đẳng cấp nhất.
+            </p>
+          </motion.div>
         </div>
+      </div>
 
-        {error && <div style={{ background: '#fff5f5', border: '1px solid #ffc9c9', borderRadius: '12px', padding: '12px 16px', marginBottom: '20px', fontSize: '14px', color: '#e03e3e', textAlign: 'center' }}>{error}</div>}
+      {/* Right: Form Side */}
+      <div style={{ flex: '0 0 540px', maxWidth: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff', borderLeft: '1px solid #f5f5f7' }}>
+        <div style={{ width: '100%', maxWidth: '380px', padding: '40px 22px' }}>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <div style={{ marginBottom: '40px' }}>
+              <h2 style={{ fontSize: '32px', fontWeight: 700, color: '#1d1d1f' }}>Đăng nhập</h2>
+              <p style={{ color: '#86868b', marginTop: '8px' }}>Quản lý đơn hàng và sở thích của bạn.</p>
+            </div>
 
-        <form onSubmit={handleSubmit} style={{ background: '#fff', borderRadius: '18px', padding: '32px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#1d1d1f', marginBottom: '6px' }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #d2d2d7', borderRadius: '12px', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s' }}
-              onFocus={e => e.target.style.borderColor = '#0071e3'} onBlur={e => e.target.style.borderColor = '#d2d2d7'} />
-          </div>
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#1d1d1f', marginBottom: '6px' }}>Mật khẩu</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-              style={{ width: '100%', padding: '12px 16px', border: '1.5px solid #d2d2d7', borderRadius: '12px', fontSize: '16px', outline: 'none', transition: 'border-color 0.2s' }}
-              onFocus={e => e.target.style.borderColor = '#0071e3'} onBlur={e => e.target.style.borderColor = '#d2d2d7'} />
-          </div>
-          <button type="submit" disabled={loading}
-            style={{ width: '100%', padding: '14px', background: '#0071e3', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '16px', fontWeight: 600, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-          </button>
-        </form>
+            {error && <div style={{ background: '#fff5f5', border: '1px solid #ffc9c9', borderRadius: '12px', padding: '12px 16px', marginBottom: '24px', fontSize: '14px', color: '#e03e3e' }}>{error}</div>}
 
-        <p style={{ textAlign: 'center', fontSize: '14px', color: '#6e6e73', marginTop: '24px' }}>
-          Chưa có tài khoản? <Link to="/register" style={{ color: '#0071e3', textDecoration: 'none', fontWeight: 500 }}>Tạo tài khoản</Link>
-        </p>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#1d1d1f', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Địa chỉ Email</label>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                  style={{ width: '100%', padding: '16px', background: '#f5f5f7', border: '1.5px solid transparent', borderRadius: '14px', fontSize: '16px', outline: 'none', transition: 'all 0.3s' }}
+                  onFocus={e => { e.target.style.borderColor = '#0071e3'; e.target.style.background = '#fff'; }} onBlur={e => { e.target.style.borderColor = 'transparent'; e.target.style.background = '#f5f5f7'; }} />
+              </div>
+              <div style={{ marginBottom: '40px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '12px', fontWeight: 700, color: '#1d1d1f', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Mật khẩu</label>
+                  <Link to="/forgot-password" style={{ fontSize: '12px', color: '#0066cc', textDecoration: 'none' }}>Quên mật khẩu?</Link>
+                </div>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
+                  style={{ width: '100%', padding: '16px', background: '#f5f5f7', border: '1.5px solid transparent', borderRadius: '14px', fontSize: '16px', outline: 'none', transition: 'all 0.3s' }}
+                  onFocus={e => { e.target.style.borderColor = '#0071e3'; e.target.style.background = '#fff'; }} onBlur={e => { e.target.style.borderColor = 'transparent'; e.target.style.background = '#f5f5f7'; }} />
+              </div>
+
+              <button type="submit" disabled={loading} className="apple-btn apple-btn-dark"
+                style={{ width: '100%', padding: '16px', fontSize: '17px', borderRadius: '14px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                {loading ? 'Đang xác thực...' : 'Vào tài khoản'}
+                {!loading && <ArrowRight size={20} />}
+              </button>
+            </form>
+
+            <div style={{ marginTop: '40px', textAlign: 'center', pt: '40px', borderTop: '1px solid #f5f5f7' }}>
+              <p style={{ fontSize: '15px', color: '#6e6e73' }}>
+                Chưa phải là thành viên? <Link to="/register" style={{ color: '#0066cc', textDecoration: 'none', fontWeight: 600 }}>Tạo ID mới</Link>
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </main>
   );

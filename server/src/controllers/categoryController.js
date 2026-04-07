@@ -78,6 +78,12 @@ export const create = async (req, res) => {
     if (exists) return res.status(400).json({ success: false, message: 'Slug danh mục đã tồn tại.' });
 
     const cat = await Category.create(req.body);
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('CATEGORY_UPDATED', { type: 'create', category: cat });
+    }
+
     res.status(201).json({ success: true, data: cat });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug danh mục đã tồn tại.' });
@@ -101,6 +107,12 @@ export const update = async (req, res) => {
     }
 
     const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('CATEGORY_UPDATED', { type: 'update', category: updated });
+    }
+
     res.json({ success: true, data: updated });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug danh mục đã tồn tại.' });
@@ -124,6 +136,12 @@ export const remove = async (req, res) => {
     }
 
     await Category.findByIdAndDelete(req.params.id);
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('CATEGORY_UPDATED', { type: 'delete', id: req.params.id });
+    }
+
     res.json({ success: true, message: 'Danh mục đã được xóa.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -149,6 +167,12 @@ export const toggleActive = async (req, res) => {
 
     cat.isActive = !cat.isActive;
     await cat.save();
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('CATEGORY_UPDATED', { type: 'toggle', category: cat });
+    }
+
     res.json({ success: true, message: cat.isActive ? 'Danh mục đã được kích hoạt.' : 'Danh mục đã bị ẩn.', data: { isActive: cat.isActive } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

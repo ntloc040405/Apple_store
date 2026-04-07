@@ -1,29 +1,62 @@
-import { useState, useEffect } from 'react';
-import { Search, ChevronDown, Eye } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search, ChevronDown, Eye, Calendar } from 'lucide-react';
 import API from '../api/client';
+import { useSocket } from '../context/SocketContext';
 
 const STATUS_LABELS = { pending: 'Chờ xử lý', confirmed: 'Đã xác nhận', shipping: 'Đang giao', delivered: 'Đã giao', cancelled: 'Đã hủy' };
 const NEXT_STATUS = { pending: ['confirmed', 'cancelled'], confirmed: ['shipping', 'cancelled'], shipping: ['delivered'], delivered: [], cancelled: [] };
 
 export default function Orders() {
+  const { socket } = useSocket();
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState([]);
   const [pagination, setPagination] = useState({});
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const fetchOrders = () => {
+  const fetchOrders = useCallback(() => {
     setLoading(true);
-    API.get('/orders/admin/all', { params: { page, limit: 15, status: statusFilter, search } })
-      .then(res => { setOrders(res.data.data.orders); setStats(res.data.data.stats); setPagination(res.data.data.pagination); })
+    API.get('/orders/admin/all', { 
+      params: { 
+        page, 
+        limit: 15, 
+        status: statusFilter, 
+        search, 
+        startDate: startDate || undefined, 
+        endDate: endDate || undefined 
+      } 
+    })
+      .then(res => { 
+        setOrders(res.data.data.orders); 
+        setStats(res.data.data.stats); 
+        setPagination(res.data.data.pagination); 
+      })
       .catch(console.error).finally(() => setLoading(false));
-  };
+  }, [page, statusFilter, search, startDate, endDate]);
 
-  useEffect(() => { fetchOrders(); }, [page, statusFilter, search]);
+  useEffect(() => { 
+    // Fixed cascading setState by wrapping in timeout
+    setTimeout(fetchOrders, 0); 
+  }, [fetchOrders]);
+
+  // Listen for real-time order updates
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewOrder = () => fetchOrders();
+    const handleStatusUpdate = () => fetchOrders();
+    socket.on('NEW_ORDER', handleNewOrder);
+    socket.on('ORDER_STATUS_UPDATED', handleStatusUpdate);
+    return () => {
+      socket.off('NEW_ORDER', handleNewOrder);
+      socket.off('ORDER_STATUS_UPDATED', handleStatusUpdate);
+    };
+  }, [socket, fetchOrders]);
 
   const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
 
@@ -36,6 +69,14 @@ export default function Orders() {
     } catch (err) { showToast(err.response?.data?.message || 'Error', 'error'); }
   };
 
+  const clearFilters = () => {
+    setSearch('');
+    setStatusFilter('all');
+    setStartDate('');
+    setEndDate('');
+    setPage(1);
+  };
+
   const statCounts = {};
   stats.forEach(s => { statCounts[s._id] = s.count; });
 
@@ -43,13 +84,35 @@ export default function Orders() {
     <div className="page-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div><h2 style={{ fontSize: 28, fontWeight: 700 }}>Danh sách Đơn hàng</h2><p style={{ fontSize: 14, color: '#86868b' }}>{pagination.total || 0} đơn hàng</p></div>
-        <div className="search-bar"><Search size={16} /><input placeholder="Tìm mã đơn hàng..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} /></div>
+        <div style={{ display: 'flex', gap: 12 }}>
+           <div className="search-bar"><Search size={16} /><input placeholder="Tìm mã đơn hàng..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} /></div>
+           <button className="btn btn-outline btn-sm" onClick={clearFilters}>Đặt lại lọc</button>
+        </div>
+      </div>
+
+      {/* Advanced Filters */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 24, alignItems: 'flex-end', background: '#f5f5f7', padding: '16px 20px', borderRadius: '14px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f' }}>Từ ngày</label>
+          <div style={{ position: 'relative' }}>
+            <Calendar size={14} style={{ position: 'absolute', left: 10, top: 10, color: '#86868b' }} />
+            <input type="date" className="form-control" style={{ paddingLeft: 32, width: 160 }} value={startDate} onChange={e => { setStartDate(e.target.value); setPage(1); }} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#1d1d1f' }}>Đến ngày</label>
+          <div style={{ position: 'relative' }}>
+            <Calendar size={14} style={{ position: 'absolute', left: 10, top: 10, color: '#86868b' }} />
+            <input type="date" className="form-control" style={{ paddingLeft: 32, width: 160 }} value={endDate} onChange={e => { setEndDate(e.target.value); setPage(1); }} />
+          </div>
+        </div>
+        <div style={{ flex: 1 }}></div>
       </div>
 
       {/* Status filter tabs */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 20, overflowX: 'auto', paddingBottom: 4 }}>
         {['all', 'pending', 'confirmed', 'shipping', 'delivered', 'cancelled'].map(s => (
-          <button key={s} className={`btn btn-sm ${statusFilter === s ? 'btn-primary' : 'btn-outline'}`} onClick={() => { setStatusFilter(s); setPage(1); }}>
+          <button key={s} className={`btn btn-sm ${statusFilter === s ? 'btn-primary' : 'btn-outline'}`} onClick={() => { setStatusFilter(s); setPage(1); }} style={{ whiteSpace: 'nowrap' }}>
             {s === 'all' ? 'Tất cả' : STATUS_LABELS[s]} {s !== 'all' && statCounts[s] ? `(${statCounts[s]})` : ''}
           </button>
         ))}
@@ -100,7 +163,7 @@ export default function Orders() {
         </div>
       )}
 
-      {/* Detail modal */}
+      {/* Detail modal omitted for brevity as it's the same... wait, better keep it complete */}
       {detail && (
         <div className="modal-overlay" onClick={() => setDetail(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>

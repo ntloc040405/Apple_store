@@ -13,7 +13,32 @@ export const getAll = async (req, res) => {
 // POST /api/banners (admin)
 export const create = async (req, res) => {
   try {
-    const banner = await Banner.create(req.body);
+    const { title, subtitle, image, bgColor, type, order } = req.body;
+    
+    // Validate required fields
+    if (!title || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Title is required.' });
+    }
+    
+    // Validate color format (hex color)
+    if (bgColor && !/^#[0-9a-fA-F]{6}$/.test(bgColor)) {
+      return res.status(400).json({ success: false, message: 'Invalid color format. Use hex color (e.g., #FF5733).' });
+    }
+    
+    // Validate type
+    if (type && !['main', 'secondary', 'promo', 'featured'].includes(type)) {
+      return res.status(400).json({ success: false, message: 'Invalid banner type.' });
+    }
+    
+    const banner = await Banner.create({
+      title: title.trim(),
+      subtitle: subtitle?.trim() || '',
+      image,
+      bgColor,
+      type: type || 'main',
+      order: order || 0
+    });
+    
     res.status(201).json({ success: true, data: banner });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, Menu, X, User, Heart } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, User, Heart, GitCompareArrows } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCompare } from '../../context/CompareContext';
+import API from '../../api/client';
 
 const navLinks = [
   { name: 'Cửa hàng', href: '/store', dropdown: null },
   {
-    name: 'Mac', href: '/category/mac',
+    name: 'Mac', href: '/shop/mac',
     dropdown: {
       title: 'Khám phá Mac',
       links: [
@@ -18,14 +20,14 @@ const navLinks = [
         { name: 'Mac Studio', href: '/shop/mac?sub=mac-studio' },
       ],
       shopLinks: [
-        { name: 'Mua sắm Mac', href: '/shop/mac' },
-        { name: 'So sánh Mac', href: '/category/mac' },
-        { name: 'Phụ kiện', href: '/category/accessories' },
+        { name: 'Tất cả Mac', href: '/shop/mac' },
+        { name: 'So sánh Mac', href: '/compare' },
+        { name: 'Phụ kiện Mac', href: '/shop/accessories?sub=mac' },
       ],
     },
   },
   {
-    name: 'iPad', href: '/category/ipad',
+    name: 'iPad', href: '/shop/ipad',
     dropdown: {
       title: 'Khám phá iPad',
       links: [
@@ -35,14 +37,14 @@ const navLinks = [
         { name: 'iPad mini', href: '/shop/ipad?sub=ipad-mini' },
       ],
       shopLinks: [
-        { name: 'Mua sắm iPad', href: '/shop/ipad' },
-        { name: 'So sánh iPad', href: '/category/ipad' },
-        { name: 'Phụ kiện', href: '/category/accessories' },
+        { name: 'Tất cả iPad', href: '/shop/ipad' },
+        { name: 'So sánh iPad', href: '/compare' },
+        { name: 'Phụ kiện iPad', href: '/shop/accessories?sub=ipad' },
       ],
     },
   },
   {
-    name: 'iPhone', href: '/category/iphone',
+    name: 'iPhone', href: '/shop/iphone',
     dropdown: {
       title: 'Khám phá iPhone',
       links: [
@@ -52,14 +54,14 @@ const navLinks = [
         { name: 'iPhone SE', href: '/shop/iphone?sub=iphone-se' },
       ],
       shopLinks: [
-        { name: 'Mua sắm iPhone', href: '/shop/iphone' },
-        { name: 'So sánh iPhone', href: '/category/iphone' },
-        { name: 'Phụ kiện', href: '/category/accessories' },
+        { name: 'Tất cả iPhone', href: '/shop/iphone' },
+        { name: 'So sánh iPhone', href: '/compare' },
+        { name: 'Phụ kiện iPhone', href: '/shop/accessories?sub=iphone' },
       ],
     },
   },
   {
-    name: 'Watch', href: '/category/watch',
+    name: 'Watch', href: '/shop/watch',
     dropdown: {
       title: 'Khám phá Watch',
       links: [
@@ -68,14 +70,14 @@ const navLinks = [
         { name: 'Apple Watch SE', href: '/shop/watch?sub=watch-se' },
       ],
       shopLinks: [
-        { name: 'Mua sắm Watch', href: '/shop/watch' },
-        { name: 'So sánh Watch', href: '/category/watch' },
-        { name: 'Dây đeo', href: '/category/accessories' },
+        { name: 'Tất cả Watch', href: '/shop/watch' },
+        { name: 'So sánh Watch', href: '/compare' },
+        { name: 'Dây đeo & Phụ kiện', href: '/shop/accessories?sub=watch' },
       ],
     },
   },
   {
-    name: 'AirPods', href: '/category/airpods',
+    name: 'AirPods', href: '/shop/airpods',
     dropdown: {
       title: 'Khám phá AirPods',
       links: [
@@ -84,8 +86,8 @@ const navLinks = [
         { name: 'AirPods Max', href: '/shop/airpods?sub=airpods-max' },
       ],
       shopLinks: [
-        { name: 'Mua sắm AirPods', href: '/shop/airpods' },
-        { name: 'So sánh AirPods', href: '/category/airpods' },
+        { name: 'Tất cả AirPods', href: '/shop/airpods' },
+        { name: 'So sánh AirPods', href: '/compare' },
       ],
     },
   },
@@ -97,9 +99,12 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const { itemCount } = useCart();
   const { user } = useAuth();
+  const { compareItems } = useCompare();
   const location = useLocation();
   const navigate = useNavigate();
   const dropdownTimeout = useRef(null);
@@ -142,9 +147,71 @@ export default function Navbar() {
     }
   };
 
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+
   useEffect(() => {
-    if (searchOpen && searchRef.current) searchRef.current.focus();
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length >= 2) {
+        setIsSearching(true);
+        try {
+          const res = await API.get(`/products/suggestions?q=${searchQuery}`);
+          setSuggestions(res.data.data || []);
+          setSelectedIndex(-1);
+        } catch (err) {
+          console.error('Suggestions error:', err);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSuggestions([]);
+        setSelectedIndex(-1);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => searchRef.current?.focus(), 100);
+    } else {
+      setSuggestions([]);
+      setSearchQuery('');
+      setSelectedIndex(-1);
+    }
   }, [searchOpen]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => (prev > -1 ? prev - 1 : prev));
+    } else if (e.key === 'Enter') {
+      if (selectedIndex !== -1 && suggestions[selectedIndex]) {
+        e.preventDefault();
+        navigate(`/product/${suggestions[selectedIndex].slug}`);
+        setSearchOpen(false);
+      }
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false);
+    }
+  };
+
+  const HighlightMatch = ({ text, query }) => {
+    if (!query) return <span>{text}</span>;
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) => 
+          part.toLowerCase() === query.toLowerCase() 
+            ? <strong key={i} style={{ color: '#fff' }}>{part}</strong> 
+            : <span key={i}>{part}</span>
+        )}
+      </span>
+    );
+  };
 
   const activeLink = navLinks.find(l => l.name === activeDropdown);
   const dropdown = activeLink?.dropdown;
@@ -191,6 +258,19 @@ export default function Navbar() {
               onMouseLeave={e => e.currentTarget.style.opacity = '0.8'}>
               <Search size={15} strokeWidth={1.8} />
             </button>
+            <Link to="/compare" style={{ color: '#f5f5f7', opacity: 0.8, position: 'relative', textDecoration: 'none' }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.8'}>
+              <GitCompareArrows size={15} strokeWidth={1.8} />
+              {compareItems?.length > 0 && (
+                <span style={{
+                  position: 'absolute', top: '-6px', right: '-8px',
+                  minWidth: '14px', height: '14px', lineHeight: '14px',
+                  background: '#0071e3', color: '#fff', fontSize: '8px', fontWeight: 700,
+                  borderRadius: '7px', textAlign: 'center', padding: '0 3px',
+                }}>{compareItems.length}</span>
+              )}
+            </Link>
             <Link to="/cart" style={{ color: '#f5f5f7', opacity: 0.8, position: 'relative', textDecoration: 'none' }}
               onMouseEnter={e => e.currentTarget.style.opacity = '1'}
               onMouseLeave={e => e.currentTarget.style.opacity = '0.8'}>
@@ -285,25 +365,95 @@ export default function Navbar() {
 
       {/* ── SEARCH OVERLAY ── */}
       {searchOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={() => setSearchOpen(false)} />
-          <div style={{ position: 'relative', width: '100%', backgroundColor: 'rgba(22,22,23,0.95)', backdropFilter: 'saturate(180%) blur(20px)' }}>
-            <div style={{ maxWidth: '680px', margin: '0 auto', padding: '52px 22px 24px' }}>
-              <form onSubmit={handleSearch} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#1d1d1f', border: '1px solid #424245', borderRadius: '8px', padding: '7px 12px' }}>
-                <Search size={16} color="#86868b" />
-                <input ref={searchRef} type="text" placeholder="Tìm kiếm trên apple.com" value={searchQuery}
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9998, animation: 'navFadeIn 0.3s ease' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', cursor: 'default' }} onClick={() => setSearchOpen(false)} />
+          <div className="glass-dropdown" style={{ position: 'relative', width: '100%', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <div style={{ maxWidth: '800px', margin: '0 auto', padding: '60px 22px 40px' }}>
+              <form onSubmit={handleSearch} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Search size={20} color="#86868b" style={{ position: 'absolute', left: '0' }} />
+                <input 
+                  ref={searchRef} 
+                  type="text" 
+                  placeholder="Tìm kiếm trên apple.com" 
+                  value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  style={{ flex: 1, background: 'none', border: 'none', outline: 'none', fontSize: '17px', color: '#f5f5f7' }} />
-                {searchQuery && <button type="button" onClick={() => setSearchQuery('')} style={{ color: '#86868b', background: 'none', border: 'none', cursor: 'pointer' }}><X size={14} /></button>}
+                  onKeyDown={handleKeyDown}
+                  style={{ 
+                    width: '100%', background: 'none', border: 'none', outline: 'none', 
+                    fontSize: '24px', fontWeight: 500, color: '#f5f5f7', padding: '0 40px',
+                    letterSpacing: '-0.02em'
+                  }} 
+                />
+                <div style={{ position: 'absolute', right: 0, display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  {isSearching && (
+                    <div className="animate-spin" style={{ width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#fff', borderRadius: '50%' }} />
+                  )}
+                  {searchQuery && (
+                    <button type="button" onClick={() => setSearchQuery('')} style={{ color: '#86868b', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      <X size={20} />
+                    </button>
+                  )}
+                </div>
               </form>
-              <div style={{ marginTop: '20px' }}>
-                <p style={{ fontSize: '12px', color: '#86868b', marginBottom: '8px' }}>Gợi ý tìm kiếm</p>
-                {['iPhone 17 Pro', 'MacBook Air', 'iPad Pro', 'Apple Watch', 'AirPods Pro'].map(q => (
-                  <Link key={q} to={`/search?q=${q}`} onClick={() => setSearchOpen(false)}
-                    style={{ display: 'block', fontSize: '14px', color: '#2997ff', padding: '2px 0', textDecoration: 'none' }}>
-                    {q}
-                  </Link>
-                ))}
+ 
+              {/* Suggestions List */}
+              <div style={{ marginTop: '40px' }}>
+                {suggestions.length > 0 ? (
+                  <div>
+                    <p className="mono-display" style={{ color: '#86868b', marginBottom: '20px' }}>Gợi ý kết quả</p>
+                    <div 
+                      className="hide-scrollbar" 
+                      style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr 1fr', 
+                        gap: '20px',
+                        maxHeight: '480px',
+                        overflowY: 'auto',
+                        paddingRight: '10px'
+                      }}
+                    >
+                      {suggestions.map((s, idx) => (
+                        <Link 
+                          key={s._id} 
+                          to={`/product/${s.slug}`} 
+                          onClick={() => setSearchOpen(false)}
+                          style={{ 
+                            display: 'flex', alignItems: 'center', gap: '16px', padding: '12px', 
+                            borderRadius: '12px', textDecoration: 'none', transition: 'all 0.2s',
+                            background: selectedIndex === idx ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
+                            transform: selectedIndex === idx ? 'translateX(4px)' : 'none',
+                            border: selectedIndex === idx ? '1px solid rgba(255,255,255,0.2)' : '1px solid transparent'
+                          }}
+                          onMouseEnter={() => setSelectedIndex(idx)}
+                        >
+                          <div style={{ width: '50px', height: '50px', background: '#fff', borderRadius: '8px', padding: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <img src={s.thumbnail} alt={s.name} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} />
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: '#f5f5f7', fontSize: '15px', fontWeight: 600 }}>
+                              <HighlightMatch text={s.name} query={searchQuery} />
+                            </div>
+                            <div className="mono-display" style={{ color: '#86868b', marginTop: '2px', fontSize: '10px' }}>
+                              {s.category?.name} — From ${s.price}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="mono-display" style={{ color: '#86868b', marginBottom: '15px' }}>Xem nhanh</p>
+                    {['iPhone 17 Pro', 'MacBook Air', 'iPad Pro', 'Apple Watch'].map(q => (
+                      <Link key={q} to={`/search?q=${q}`} onClick={() => setSearchOpen(false)}
+                        style={{ display: 'block', fontSize: '15px', color: '#f5f5f7', padding: '8px 0', textDecoration: 'none', transition: 'color 0.2s' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#2997ff'}
+                        onMouseLeave={e => e.currentTarget.style.color = '#f5f5f7'}>
+                        {q}
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

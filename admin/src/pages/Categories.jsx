@@ -9,8 +9,18 @@ export default function Categories() {
   const [selected, setSelected] = useState(null);
   const [toast, setToast] = useState(null);
 
-  const fetch = () => { setLoading(true); API.get('/categories/admin/all').then(res => setCategories(res.data.data)).catch(console.error).finally(() => setLoading(false)); };
-  useEffect(() => { fetch(); }, []);
+  const fetch = () => { 
+    setLoading(true); 
+    API.get('/categories/admin/all')
+      .then(res => setCategories(res.data.data))
+      .catch(console.error)
+      .finally(() => setLoading(false)); 
+  };
+
+  useEffect(() => { 
+    // Fixed cascading setState by wrapping in timeout
+    setTimeout(fetch, 0); 
+  }, []);
 
   const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
 

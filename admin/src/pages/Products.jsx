@@ -22,9 +22,15 @@ export default function Products() {
 
   const fetchCategories = useCallback(() => API.get('/categories/admin/all').then(res => setCategories(res.data.data)), []);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => { 
+    // Fixed cascading setState by wrapping in timeout
+    setTimeout(fetchProducts, 0); 
+  }, [fetchProducts]);
 
-  useEffect(() => { fetchCategories(); }, [fetchCategories]);
+  useEffect(() => { 
+    // Fixed cascading setState by wrapping in timeout
+    setTimeout(fetchCategories, 0); 
+  }, [fetchCategories]);
 
   const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
 
@@ -130,16 +136,36 @@ export default function Products() {
 function ProductModal({ mode, product, categories, onSave, onClose }) {
   const [form, setForm] = useState({
     name: '', slug: '', tagline: '', description: '', category: '', subCategory: '',
-    price: '', salePrice: '', monthlyPrice: '', stock: 100,
-    thumbnail: '', isFeatured: false, isNewProduct: false, isActive: true,
+    price: '', salePrice: '', monthlyPrice: '', stock: 100, rating: 4.5, reviewCount: 0,
+    thumbnail: '', images: [], isFeatured: false, isNewProduct: false, isActive: true,
     colors: [], storageOptions: [], highlights: [],
-    specs: { display: '', chip: '', camera: '', battery: '', storage: '', weight: '' },
+    specs: { 
+      chip: '', display: '', camera: '', battery: '', storage: '', connectivity: '',
+      waterResistance: '', weight: '', dimensions: '', audio: '', sensors: '',
+      authentication: '', ports: '', charging: '', graphics: ''
+    },
     ...(product || {}),
   });
   const [error, setError] = useState('');
 
   const onChange = (field, value) => setForm(f => ({ ...f, [field]: value }));
   const onSpecChange = (field, value) => setForm(f => ({ ...f, specs: { ...f.specs, [field]: value } }));
+
+  const addHighlight = () => setForm(f => ({ ...f, highlights: [...(f.highlights || []), ''] }));
+  const removeHighlight = (i) => setForm(f => ({ ...f, highlights: f.highlights.filter((_, idx) => idx !== i) }));
+  const updateHighlight = (i, val) => setForm(f => ({ ...f, highlights: f.highlights.map((h, idx) => idx === i ? val : h) }));
+
+  const addColor = () => setForm(f => ({ ...f, colors: [...(f.colors || []), { name: '', hex: '#000000', image: '' }] }));
+  const removeColor = (i) => setForm(f => ({ ...f, colors: f.colors.filter((_, idx) => idx !== i) }));
+  const updateColor = (i, field, val) => setForm(f => ({ ...f, colors: f.colors.map((c, idx) => idx === i ? { ...c, [field]: val } : c) }));
+
+  const addStorage = () => setForm(f => ({ ...f, storageOptions: [...(f.storageOptions || []), { capacity: '', priceAdd: 0 }] }));
+  const removeStorage = (i) => setForm(f => ({ ...f, storageOptions: f.storageOptions.filter((_, idx) => idx !== i) }));
+  const updateStorage = (i, field, val) => setForm(f => ({ ...f, storageOptions: f.storageOptions.map((s, idx) => idx === i ? { ...s, [field]: val } : s) }));
+
+  const addImage = () => setForm(f => ({ ...f, images: [...(f.images || []), ''] }));
+  const removeImage = (i) => setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+  const updateImage = (i, val) => setForm(f => ({ ...f, images: f.images.map((img, idx) => idx === i ? val : img) }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -151,7 +177,7 @@ function ProductModal({ mode, product, categories, onSave, onClose }) {
     if (sale !== null && sale <= 0) { setError('Giá khuyến mãi phải lớn hơn 0'); return; }
     if (sale !== null && sale >= price) { setError('Giá khuyến mãi phải nhỏ hơn giá gốc'); return; }
     if (monthly !== null && monthly <= 0) { setError('Giá trả góp phải lớn hơn 0'); return; }
-    const data = { ...form, price, stock: Number(form.stock) };
+    const data = { ...form, price, stock: Number(form.stock), rating: Number(form.rating), reviewCount: Number(form.reviewCount) };
     if (sale) data.salePrice = sale; else data.salePrice = null;
     if (monthly) data.monthlyPrice = monthly; else data.monthlyPrice = null;
     if (form.category?._id) data.category = form.category._id;
@@ -160,7 +186,7 @@ function ProductModal({ mode, product, categories, onSave, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 720 }}>
+      <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 900, maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="modal-header">
           <h3>{mode === 'create' ? '✨ Sản phẩm mới' : `✏️ Chỉnh sửa: ${product?.name}`}</h3>
           <button className="btn-icon" onClick={onClose}><X size={18} /></button>
@@ -168,62 +194,77 @@ function ProductModal({ mode, product, categories, onSave, onClose }) {
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             {error && <div style={{ padding: '10px 16px', background: '#fff5f5', borderRadius: 8, color: '#e03e3e', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+            
+            {/* Cơ bản */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>📌 Thông tin cơ bản</h4>
             <div className="form-row">
               <div className="form-group"><label className="form-label">Tên sản phẩm *</label><input className="form-input" value={form.name} onChange={e => onChange('name', e.target.value)} required /></div>
               <div className="form-group"><label className="form-label">Đường dẫn (Slug) *</label><input className="form-input" value={form.slug} onChange={e => onChange('slug', e.target.value)} required /></div>
             </div>
-            <div className="form-group"><label className="form-label">Slogan (Tagline)</label><input className="form-input" value={form.tagline} onChange={e => onChange('tagline', e.target.value)} /></div>
             <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Danh mục *</label>
-                <select className="form-select" value={form.category?._id || form.category} onChange={e => onChange('category', e.target.value)} required>
-                  <option value="">Chọn...</option>
-                  {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div className="form-group"><label className="form-label">Đường dẫn ảnh (Thumbnail URL)</label><input className="form-input" value={form.thumbnail} onChange={e => onChange('thumbnail', e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Slogan (Tagline)</label><input className="form-input" value={form.tagline} onChange={e => onChange('tagline', e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Danh mục *</label><select className="form-select" value={form.category?._id || form.category} onChange={e => onChange('category', e.target.value)} required><option value="">Chọn...</option>{categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}</select></div>
             </div>
+            <div className="form-row">
+              <div className="form-group"><label className="form-label">Phân loại nhỏ</label><input className="form-input" placeholder="vd: Desktop, Pro, Max..." value={form.subCategory} onChange={e => onChange('subCategory', e.target.value)} /></div>
+            </div>
+            <div className="form-group"><label className="form-label">Mô tả</label><textarea className="form-input" rows={4} value={form.description} onChange={e => onChange('description', e.target.value)} style={{fontFamily:'monospace'}} placeholder="HTML hoặc text..." /></div>
+
+            {/* Giá & Tồn kho */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>💰 Giá & Tồn kho</h4>
             <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr 1fr 1fr' }}>
-              <div className="form-group">
-                <label className="form-label">Giá chuẩn ($) *</label>
-                <input className="form-input" style={{ borderColor: (form.price && Number(form.price) <= 0) ? '#ff3b30' : undefined }} type="number" min="0.01" step="0.01" value={form.price} onChange={e => onChange('price', e.target.value)} required />
-                <span style={{ fontSize: 11, color: (form.price && Number(form.price) <= 0) ? '#ff3b30' : '#86868b' }}>Phải &gt; 0</span>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Giá sale ($)</label>
-                <input className="form-input" style={{ borderColor: (form.salePrice && (Number(form.salePrice) >= Number(form.price) || Number(form.salePrice) <= 0)) ? '#ff3b30' : undefined }} type="number" min="0.01" step="0.01" value={form.salePrice || ''} onChange={e => onChange('salePrice', e.target.value)} placeholder="0.00" />
-                <span style={{ fontSize: 11, color: (form.salePrice && (Number(form.salePrice) >= Number(form.price) || Number(form.salePrice) <= 0)) ? '#ff3b30' : '#86868b' }}>Phải &lt; Giá gốc và &gt; 0</span>
-              </div>
-              <div className="form-group">
-                <label className="form-label">12 tháng trả góp ($)</label>
-                <input className="form-input" style={{ borderColor: (form.monthlyPrice && Number(form.monthlyPrice) <= 0) ? '#ff3b30' : undefined }} type="number" min="0.01" step="0.01" value={form.monthlyPrice || ''} onChange={e => onChange('monthlyPrice', e.target.value)} placeholder="10.00" />
-                <span style={{ fontSize: 11, color: (form.monthlyPrice && Number(form.monthlyPrice) <= 0) ? '#ff3b30' : '#86868b' }}>Phải &gt; 0</span>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Tồn kho</label>
-                <input className="form-input" type="number" min="0" value={form.stock} onChange={e => onChange('stock', e.target.value)} />
-              </div>
+              <div className="form-group"><label className="form-label">Giá gốc ($) *</label><input className="form-input" type="number" min="0.01" step="0.01" value={form.price} onChange={e => onChange('price', e.target.value)} required /></div>
+              <div className="form-group"><label className="form-label">Giá sale ($)</label><input className="form-input" type="number" min="0.01" step="0.01" value={form.salePrice || ''} onChange={e => onChange('salePrice', e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Giá trả góp/tháng ($)</label><input className="form-input" type="number" min="0.01" step="0.01" value={form.monthlyPrice || ''} onChange={e => onChange('monthlyPrice', e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Tồn kho</label><input className="form-input" type="number" min="0" value={form.stock} onChange={e => onChange('stock', e.target.value)} /></div>
             </div>
-            <div style={{ display: 'flex', gap: 24, marginBottom: 16 }}>
-              {[['isFeatured', 'Sản phẩm Nổi bật'], ['isNewProduct', 'Tem Hàng mới'], ['isActive', 'Đang bán']].map(([k, l]) => (
-                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => onChange(k, !form[k])}>
-                  <div className="toggle" style={{ pointerEvents: 'none' }}>
-                    <input type="checkbox" checked={form[k] || false} readOnly />
-                    <span className="toggle-slider" />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>{l}</span>
-                </div>
-              ))}
+            <div className="form-row" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <div className="form-group"><label className="form-label">Rating</label><input className="form-input" type="number" min="0" max="5" step="0.1" value={form.rating} onChange={e => onChange('rating', e.target.value)} /></div>
+              <div className="form-group"><label className="form-label">Số review</label><input className="form-input" type="number" min="0" value={form.reviewCount} onChange={e => onChange('reviewCount', e.target.value)} /></div>
             </div>
-            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 8, borderTop: '1px solid #e8e8ed' }}>Thông số kỹ thuật</h4>
+
+            {/* Hình ảnh */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>🖼️ Hình ảnh</h4>
+            <div className="form-group"><label className="form-label">Thumbnail URL</label><input className="form-input" value={form.thumbnail} onChange={e => onChange('thumbnail', e.target.value)} /></div>
+            <div><label className="form-label">Hình ảnh sản phẩm (URLs)</label>{form.images?.map((img, i) => (<div key={i} style={{display:'flex',gap:8,marginBottom:8}}><input className="form-input" value={img} onChange={e => updateImage(i, e.target.value)} style={{flex:1}} /><button type="button" className="btn btn-outline" style={{padding:'8px 12px',color:'#ff3b30'}} onClick={() => removeImage(i)}>Xoá</button></div>))}<button type="button" className="btn btn-outline" onClick={addImage} style={{marginTop:8}}>+ Thêm ảnh</button></div>
+
+            {/* Highlights */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>⭐ 3 Điểm nổi bật</h4>
+            {form.highlights?.map((h, i) => (<div key={i} style={{display:'flex',gap:8,marginBottom:8}}><input className="form-input" value={h} onChange={e => updateHighlight(i, e.target.value)} style={{flex:1}} /><button type="button" className="btn btn-outline" style={{padding:'8px 12px',color:'#ff3b30'}} onClick={() => removeHighlight(i)}>Xoá</button></div>))}<button type="button" className="btn btn-outline" onClick={addHighlight} style={{marginTop:8}}>+ Thêm highlight</button>
+
+            {/* Màu sắc */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>🎨 Màu sắc</h4>
+            {form.colors?.map((c, i) => (<div key={i} style={{display:'grid',gridTemplateColumns:'1fr 1fr 2fr 80px',gap:8,marginBottom:8}}><input className="form-input" placeholder="Tên (vd: Space Black)" value={c.name} onChange={e => updateColor(i, 'name', e.target.value)} /><input className="form-input" type="color" value={c.hex} onChange={e => updateColor(i, 'hex', e.target.value)} /><input className="form-input" placeholder="Image URL" value={c.image} onChange={e => updateColor(i, 'image', e.target.value)} /><button type="button" className="btn btn-outline" style={{padding:'8px 12px',color:'#ff3b30'}} onClick={() => removeColor(i)}>Xoá</button></div>))}<button type="button" className="btn btn-outline" onClick={addColor} style={{marginTop:8}}>+ Thêm màu</button>
+
+            {/* Storage Options */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>💾 Tùy chọn dung lượng</h4>
+            {form.storageOptions?.map((s, i) => (<div key={i} style={{display:'flex',gap:8,marginBottom:8}}><input className="form-input" placeholder="Dung lượng (vd: 256GB)" value={s.capacity} onChange={e => updateStorage(i, 'capacity', e.target.value)} style={{flex:1}} /><input className="form-input" placeholder="Phụ thu ($)" type="number" min="0" value={s.priceAdd} onChange={e => updateStorage(i, 'priceAdd', e.target.value)} style={{width:100}} /><button type="button" className="btn btn-outline" style={{padding:'8px 12px',color:'#ff3b30'}} onClick={() => removeStorage(i)}>Xoá</button></div>))}<button type="button" className="btn btn-outline" onClick={addStorage} style={{marginTop:8}}>+ Thêm dung lượng</button>
+
+            {/* Specs */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>⚙️ Thông số kỹ thuật</h4>
             <div className="form-row">
-              {[['display', 'Màn hình'], ['chip', 'Chip/Vi xử lý'], ['camera', 'Camera'], ['battery', 'Pin'], ['storage', 'Lưu trữ (Dung lượng)'], ['weight', 'Trọng lượng']].map(([k, l]) => (
-                <div className="form-group" key={k}><label className="form-label">{l}</label><input className="form-input" value={form.specs?.[k] || ''} onChange={e => onSpecChange(k, e.target.value)} /></div>
+              {[['chip','Chip'],['display','Màn hình'],['camera','Camera'],['battery','Pin'],['storage','Dung lượng'],['connectivity','Kết nối']].map(([k,l])=>(<div className="form-group" key={k}><label className="form-label">{l}</label><input className="form-input" value={form.specs?.[k]||''} onChange={e=>onSpecChange(k,e.target.value)} /></div>))}
+            </div>
+            <div className="form-row">
+              {[['weight','Trọng lượng'],['dimensions','Kích thước'],['waterResistance','Chống nước'],['audio','Âm thanh'],['ports','Cổng'],['charging','Sạc']].map(([k,l])=>(<div className="form-group" key={k}><label className="form-label">{l}</label><input className="form-input" value={form.specs?.[k]||''} onChange={e=>onSpecChange(k,e.target.value)} /></div>))}
+            </div>
+            <div className="form-row">
+              {[['sensors','Cảm biến'],['authentication','Xác thực'],['graphics','Đồ họa']].map(([k,l])=>(<div className="form-group" key={k}><label className="form-label">{l}</label><input className="form-input" value={form.specs?.[k]||''} onChange={e=>onSpecChange(k,e.target.value)} /></div>))}
+            </div>
+
+            {/* Status */}
+            <h4 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, paddingTop: 16, borderTop: '1px solid #e8e8ed', marginTop: 16 }}>✅ Trạng thái</h4>
+            <div style={{ display: 'flex', gap: 24 }}>
+              {[['isFeatured', 'Nổi bật'], ['isNewProduct', 'Sản phẩm mới'], ['isActive', 'Đang bán']].map(([k, l]) => (
+                <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} onClick={() => onChange(k, !form[k])}>
+                  <div className="toggle" style={{ pointerEvents: 'none' }}><input type="checkbox" checked={form[k] || false} readOnly /><span className="toggle-slider" /></div>
+                  <span style={{ fontSize: 13 }}>{l}</span>
+                </div>
               ))}
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-outline" onClick={onClose}>Hủy bõ</button>
+            <button type="button" className="btn btn-outline" onClick={onClose}>Hủy bỏ</button>
             <button type="submit" className="btn btn-primary">{mode === 'create' ? 'Tạo Sản phẩm' : 'Lưu thay đổi'}</button>
           </div>
         </form>

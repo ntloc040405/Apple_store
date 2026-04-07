@@ -1,6 +1,7 @@
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
 import Order from '../models/Order.js';
+import { validatePagination, validateString, escapeRegex } from '../utils/validators.js';
 
 // ════════════════════════════════════════════
 // VALIDATION HELPERS
@@ -58,7 +59,9 @@ const validateProduct = (data, isUpdate = false) => {
 // GET /api/products
 export const getAll = async (req, res) => {
   try {
-    const { category, subCategory, minPrice, maxPrice, color, storage, sort, page = 1, limit = 12, search } = req.query;
+    const { category, subCategory, minPrice, maxPrice, color, storage, sort, page, limit, search } = req.query;
+    const { page: validPage, limit: validLimit } = validatePagination(page, limit);
+    
     const filter = { isActive: true };
 
     if (category) {
@@ -79,14 +82,21 @@ export const getAll = async (req, res) => {
     const sortOpt = sortMap[sort] || { createdAt: -1 };
 
     const total = await Product.countDocuments(filter);
-    const skip = (Number(page) - 1) * Number(limit);
-    const products = await Product.find(filter).populate('category', 'name slug').sort(sortOpt).skip(skip).limit(Number(limit)).lean();
+    const skip = (validPage - 1) * validLimit;
+    const products = await Product.find(filter).populate('category', 'name slug').sort(sortOpt).skip(skip).limit(validLimit).lean();
 
     res.json({
       success: true,
       data: {
         products,
-        pagination: { total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / limit), hasNext: skip + products.length < total, hasPrev: Number(page) > 1 },
+        pagination: {
+          total,
+          page: validPage,
+          limit: validLimit,
+          totalPages: Math.ceil(total / validLimit),
+          hasNext: skip + products.length < total,
+          hasPrev: validPage > 1
+        },
       },
     });
   } catch (err) {
@@ -97,8 +107,24 @@ export const getAll = async (req, res) => {
 // GET /api/products/featured
 export const getFeatured = async (req, res) => {
   try {
-    const highlights = await Product.find({ isFeatured: true, isActive: true }).populate('category', 'name slug').limit(6).lean();
-    const newArrivals = await Product.find({ isNewProduct: true, isActive: true }).populate('category', 'name slug').sort({ createdAt: -1 }).limit(12).lean();
+    const highlights = await Product.find({ 
+      $or: [
+        { rating: { $gte: 4.8 } },
+        { isFeatured: true }
+      ],
+      isActive: true 
+    })
+    .populate('category', 'name slug')
+    .sort({ rating: -1, reviewCount: -1 })
+    .limit(6)
+    .lean();
+
+    const newArrivals = await Product.find({ isNewProduct: true, isActive: true })
+      .populate('category', 'name slug')
+      .sort({ createdAt: -1 })
+      .limit(12)
+      .lean();
+
     res.json({ success: true, data: { highlights, newArrivals } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -109,17 +135,41 @@ export const getFeatured = async (req, res) => {
 export const search = async (req, res) => {
   try {
     const { q, limit = 10 } = req.query;
-    if (!q) return res.json({ success: true, data: { products: [], total: 0 } });
+    if (!q || !q.trim()) return res.json({ success: true, data: { products: [], total: 0 } });
+    
+    // Validate and sanitize limit
+    const validLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    
+    // Escape regex to prevent ReDoS attacks and limit search query length
+    const safeQuery = escapeRegex(q.trim()).slice(0, 100);
+    
     const filter = {
       isActive: true,
       $or: [
-        { name: { $regex: q, $options: 'i' } },
-        { tagline: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } },
+        { name: { $regex: safeQuery, $options: 'i' } },
+        { tagline: { $regex: safeQuery, $options: 'i' } },
+        { description: { $regex: safeQuery, $options: 'i' } },
       ],
     };
-    const products = await Product.find(filter).populate('category', 'name slug').limit(Number(limit)).lean();
+    const products = await Product.find(filter).populate('category', 'name slug').limit(validLimit).lean();
     res.json({ success: true, data: { products, total: products.length } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Search failed. Please try again.' });
+  }
+};
+
+// GET /api/products/suggestions?q=...
+export const getSuggestions = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json({ success: true, data: [] });
+    
+    const suggestions = await Product.find(
+      { name: { $regex: q, $options: 'i' }, isActive: true },
+      'name slug price thumbnail tagline category'
+    ).populate('category', 'name').limit(8).lean();
+
+    res.json({ success: true, data: suggestions });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -192,6 +242,12 @@ export const create = async (req, res) => {
     if (!catExists) return res.status(400).json({ success: false, message: 'Danh mục không tồn tại.' });
 
     const product = await Product.create(req.body);
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('PRODUCT_UPDATED', { type: 'create', product });
+    }
+
     res.status(201).json({ success: true, data: product });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug sản phẩm đã tồn tại.' });
@@ -226,6 +282,12 @@ export const update = async (req, res) => {
     }
 
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('PRODUCT_UPDATED', { type: 'update', product: updated });
+    }
+
     res.json({ success: true, data: updated });
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ success: false, message: 'Slug sản phẩm đã tồn tại.' });
@@ -249,6 +311,12 @@ export const remove = async (req, res) => {
     }
 
     await Product.findByIdAndDelete(req.params.id);
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('PRODUCT_UPDATED', { type: 'delete', id: req.params.id });
+    }
+
     res.json({ success: true, message: 'Sản phẩm đã được xóa.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -262,6 +330,12 @@ export const toggleActive = async (req, res) => {
     if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
     product.isActive = !product.isActive;
     await product.save();
+
+    // Emit real-time event
+    if (globalThis.io) {
+      globalThis.io.emit('PRODUCT_UPDATED', { type: 'toggle', product });
+    }
+
     res.json({ success: true, message: product.isActive ? 'Sản phẩm đã được kích hoạt.' : 'Sản phẩm đã bị ẩn.', data: { isActive: product.isActive } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

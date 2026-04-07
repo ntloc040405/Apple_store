@@ -3,299 +3,534 @@ import connectDB from './config/db.js';
 import Category from './models/Category.js';
 import Product from './models/Product.js';
 import Banner from './models/Banner.js';
+import Blog from './models/Blog.js';
 import User from './models/User.js';
 
 const seedData = async () => {
   await connectDB();
-  console.log('🌱 Seeding database...');
+  console.log('🌱 Performing a TIER-1 PRO-GRADE Catalog Reset...');
 
   // Clear existing data
   await Category.deleteMany({});
   await Product.deleteMany({});
   await Banner.deleteMany({});
+  await Blog.deleteMany({});
 
-  // ══════════════════════════════════════
-  // CATEGORIES
-  // ══════════════════════════════════════
+  // ── CATEGORIES ──
   const categoriesData = [
-    {
-      name: 'Mac', slug: 'mac', icon: 'laptop', order: 1,
-      description: 'If you can dream it, Mac can do it.',
-      banner: { title: 'Mac', subtitle: 'If you can dream it, Mac can do it.', bgColor: '#000000' },
-      subCategories: [
-        { name: 'MacBook Air', slug: 'macbook-air' },
-        { name: 'MacBook Pro', slug: 'macbook-pro' },
-        { name: 'iMac', slug: 'imac' },
-        { name: 'Mac mini', slug: 'mac-mini' },
-      ],
-    },
-    {
-      name: 'iPhone', slug: 'iphone', icon: 'smartphone', order: 2,
-      description: 'Designed for Apple Intelligence.',
-      banner: { title: 'iPhone', subtitle: 'Designed for Apple Intelligence.', bgColor: '#000000' },
-      subCategories: [
-        { name: 'iPhone 17 Pro', slug: 'iphone-17-pro' },
-        { name: 'iPhone Air', slug: 'iphone-air' },
-        { name: 'iPhone 17', slug: 'iphone-17' },
-        { name: 'iPhone 17e', slug: 'iphone-17e' },
-      ],
-    },
-    {
-      name: 'iPad', slug: 'ipad', icon: 'tablet', order: 3,
-      description: 'Your next computer is not a computer.',
-      banner: { title: 'iPad', subtitle: 'Your next computer is not a computer.', bgColor: '#000000' },
-      subCategories: [
-        { name: 'iPad Pro', slug: 'ipad-pro' },
-        { name: 'iPad Air', slug: 'ipad-air' },
-        { name: 'iPad', slug: 'ipad-10' },
-        { name: 'iPad mini', slug: 'ipad-mini' },
-      ],
-    },
-    {
-      name: 'Apple Watch', slug: 'watch', icon: 'watch', order: 4,
-      description: 'The ultimate device for a healthy life.',
-      banner: { title: 'Apple Watch', subtitle: 'The ultimate device for a healthy life.', bgColor: '#000000' },
-      subCategories: [
-        { name: 'Apple Watch Ultra 2', slug: 'watch-ultra-2' },
-        { name: 'Apple Watch Series 10', slug: 'watch-series-10' },
-        { name: 'Apple Watch SE', slug: 'watch-se' },
-      ],
-    },
-    {
-      name: 'AirPods', slug: 'airpods', icon: 'headphones', order: 5,
-      description: 'Iconic. Now supersonic.',
-      banner: { title: 'AirPods', subtitle: 'Iconic. Now supersonic.', bgColor: '#000000' },
-      subCategories: [
-        { name: 'AirPods Pro 2', slug: 'airpods-pro-2' },
-        { name: 'AirPods 4', slug: 'airpods-4' },
-        { name: 'AirPods Max', slug: 'airpods-max' },
-      ],
-    },
-    {
-      name: 'AirTag', slug: 'airtag', icon: 'map-pin', order: 6,
-      description: 'Lose your knack for losing things.',
-    },
-    {
-      name: 'Accessories', slug: 'accessories', icon: 'grid', order: 7,
-      description: 'Explore accessories for your Apple devices.',
-    },
-    {
-      name: 'Apple Vision Pro', slug: 'vision', icon: 'glasses', order: 8,
-      description: 'Welcome to the era of spatial computing.',
-    },
+    { name: 'Mac', slug: 'mac', icon: 'laptop', order: 1, description: 'Power for the pro.' },
+    { name: 'iPhone', slug: 'iphone', icon: 'smartphone', order: 2, description: 'Apple Intelligence in your pocket.' },
+    { name: 'iPad', slug: 'ipad', icon: 'tablet', order: 3, description: 'Versatility unmatched.' },
+    { name: 'Watch', slug: 'watch', icon: 'watch', order: 4, description: 'Your health, elevated.' },
+    { name: 'AirPods', slug: 'airpods', icon: 'headphones', order: 5, description: 'Audio masterpiece.' },
+    { name: 'Accessories', slug: 'accessories', icon: 'grid', order: 6, description: 'Complete your world.' }
   ];
 
   const cats = await Category.insertMany(categoriesData);
-  console.log(`  ✅ ${cats.length} categories created`);
-
-  // Category lookup
   const catMap = {};
   cats.forEach(c => { catMap[c.slug] = c._id; });
 
-  // ══════════════════════════════════════
-  // PRODUCTS
-  // ══════════════════════════════════════
   const productsData = [
-    // ── iPhone ──
+    // ── MAC MINI M4 ──
     {
-      name: 'iPhone 17 Pro Max', slug: 'iphone-17-pro-max', category: catMap.iphone, subCategory: 'iphone-17-pro',
-      tagline: 'The ultimate iPhone.', description: 'A magical new way to interact with iPhone. A groundbreaking safety feature designed to save lives.',
-      price: 1199, monthlyPrice: 49.95, isFeatured: true, isNewProduct: true, rating: 4.8, reviewCount: 1250, stock: 50,
-      colors: [
-        { name: 'Natural Titanium', hex: '#B0A99F' }, { name: 'Desert Titanium', hex: '#C2B59B' },
-        { name: 'White Titanium', hex: '#F2F1EB' }, { name: 'Black Titanium', hex: '#3C3C3D' },
+      name: 'Mac mini M4',
+      slug: 'mac-mini-m4',
+      category: catMap.mac,
+      subCategory: 'Desktop',
+      tagline: 'Gọn nhẹ hơn. Mạnh mẽ vượt tầm. Siêu máy tính để bàn.',
+      description: `<div class="product-narrative"><p>Mac mini giờ đây gọn hơn bao giờ hết—chỉ với kích thước 5x5 inch. Được trang bị chip M4 hoặc M4 Pro mạnh mẽ, đây là con quái vật về hiệu suất chuyên nghiệp trong một thân hình tối giản.</p><ul><li>M100% hoạt động yên tĩnh</li><li>Cổng kết nối rộng rãi</li><li>Lý tưởng cho studio, nhà phát triển, chuyên nghiệp</li></ul></div>`,
+      price: 599,
+      salePrice: 549,
+      monthlyPrice: 27,
+      rating: 4.8,
+      reviewCount: 320,
+      stock: 50,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: true,
+      highlights: [
+        'Chip M4 (10-core CPU, 10-core GPU) - Siêu mạnh mẽ.',
+        'Kích thước 5x5 inch - Gọn nhẹ để bàn.',
+        'Thunderbolt 5 - Tốc độ truyền 120Gb/s.'
       ],
-      storageOptions: [{ capacity: '256GB', priceAdd: 0 }, { capacity: '512GB', priceAdd: 200 }, { capacity: '1TB', priceAdd: 400 }],
       specs: {
-        display: '6.9-inch Super Retina XDR, ProMotion 120Hz, Always-On',
-        chip: 'A19 Pro chip with 6-core GPU', camera: '48MP Fusion + 48MP Ultra Wide + 12MP Telephoto (5x)',
-        battery: 'Up to 33 hours video playback', storage: '256GB / 512GB / 1TB',
-        connectivity: '5G, Wi-Fi 7, Bluetooth 5.4, USB-C 3', waterResistance: 'IP68', weight: '227g',
+        chip: 'Apple M4 chip (10-core CPU, 10-core GPU, 16-core Neural Engine)',
+        display: 'Hỗ trợ tới 2 màn hình 6K/4K hoặc 1 màn hình 5K',
+        storage: '256GB / 512GB / 1TB / 2TB SSD',
+        ports: '3x Thunderbolt 5, HDMI 2.1, Gigabit Ethernet',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3',
+        weight: '920 grams',
+        dimensions: '5 x 5 x 2.4 inches',
+        powers: '36W / 70W USB-C Power Adapter'
       },
-      highlights: ['A19 Pro chip', '48MP Pro camera system', '5x optical zoom', 'Titanium design', 'All-day battery life', 'Action button'],
-      thumbnail: '/images/iphone.png', images: ['/images/iphone.png'],
-    },
-    {
-      name: 'iPhone 17 Pro', slug: 'iphone-17-pro', category: catMap.iphone, subCategory: 'iphone-17-pro',
-      tagline: 'The ultimate iPhone.', description: 'iPhone 17 Pro. Forged in titanium and powered by AI.',
-      price: 999, monthlyPrice: 41.62, isFeatured: true, isNewProduct: true, rating: 4.7, reviewCount: 980, stock: 60,
       colors: [
-        { name: 'Natural Titanium', hex: '#B0A99F' }, { name: 'Desert Titanium', hex: '#C2B59B' },
-        { name: 'White Titanium', hex: '#F2F1EB' }, { name: 'Black Titanium', hex: '#3C3C3D' },
+        { name: 'Space Black', hex: '#1D1D1F', image: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1074&auto=format&fit=crop' },
+        { name: 'Silver', hex: '#E3E4E5', image: 'https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?q=80&w=1470&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '256GB', priceAdd: 0 }, { capacity: '512GB', priceAdd: 200 }, { capacity: '1TB', priceAdd: 400 }],
-      specs: {
-        display: '6.3-inch Super Retina XDR, ProMotion 120Hz', chip: 'A19 Pro chip',
-        camera: '48MP Fusion + 48MP Ultra Wide + 12MP Telephoto', battery: 'Up to 27 hours video playback',
-        storage: '256GB / 512GB / 1TB', weight: '199g',
-      },
-      highlights: ['A19 Pro chip', '48MP camera system', 'Titanium design', 'ProMotion display', 'All-day battery'],
-      thumbnail: '/images/iphone.png', images: ['/images/iphone.png'],
+      storageOptions: [
+        { capacity: '256GB SSD', priceAdd: 0 },
+        { capacity: '512GB SSD', priceAdd: 200 },
+        { capacity: '1TB SSD', priceAdd: 400 },
+        { capacity: '2TB SSD', priceAdd: 800 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1074&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1074&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1594911772125-07fc7a2d8d9f?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1587829741301-dc798b83dadc?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1470&auto=format&fit=crop'
+      ]
     },
+    // ── iPHONE 17 PRO MAX ──
     {
-      name: 'iPhone Air', slug: 'iphone-air', category: catMap.iphone, subCategory: 'iphone-air',
-      tagline: 'Impressively thin. Impossibly powerful.', description: 'The thinnest iPhone ever.',
-      price: 1199, monthlyPrice: 49.95, isFeatured: true, isNewProduct: true, rating: 4.6, reviewCount: 520, stock: 80,
+      name: 'iPhone 17 Pro Max',
+      slug: 'iphone-17-pro-max',
+      category: catMap.iphone,
+      subCategory: 'Pro',
+      tagline: 'Titanium. Intelligence. Trải nghiệm không giới hạn.',
+      description: `<p>iPhone 17 Pro Max là đỉnh cao mới của nghệ thuật chế tác điện thoại. Khung vỏ Titanium cấp độ hàng không siêu bền bỉ kết hợp với mặt lưng kính nhám tạo nên vẻ đẹp sang trọng và thiết kế Action Camera 5x tele.</p>`,
+      price: 1199,
+      salePrice: 1149,
+      monthlyPrice: 50,
+      rating: 4.9,
+      reviewCount: 1250,
+      stock: 100,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: true,
+      highlights: [
+        'Chip A19 Pro - Hiệu suất tuyệt đối.',
+        'Camera 48MP & Tele 5x - Chụp ảnh chuyên nghiệp.',
+        'Thiết kế Titanium - Bền bỉ, sang trọng.'
+      ],
+      specs: {
+        display: '6.9-inch LTPO OLED, 1-120Hz, 2000 nits peak',
+        chip: 'Apple A19 Pro (6-core CPU, 6-core GPU, 16-core Neural Engine)',
+        camera: 'Main: 48MP | Ultra Wide: 48MP | Tele: 12MP 5x Optical Zoom',
+        battery: 'Pin 4900 mAh, sạc 45W, 50% tại 30 phút',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3, 5G (mmWave + Sub-6GHz)',
+        waterResistance: 'IP69 - Chống nước tới 6 mét, 30 phút',
+        weight: '194 grams',
+        dimensions: '6.33 x 3.14 x 0.34 inches',
+        charging: 'USB-C with USB 3.0 speed'
+      },
       colors: [
-        { name: 'Starlight', hex: '#F5E6D3' }, { name: 'Midnight', hex: '#1D1D2C' },
-        { name: 'Sky Blue', hex: '#B5D3E7' }, { name: 'Green', hex: '#AEC8A4' },
+        { name: 'Natural Titanium', hex: '#B0A99F', image: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop' },
+        { name: 'Desert Titanium', hex: '#C2B59B', image: 'https://images.unsplash.com/photo-1592890284954-469b60ed7126?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Black Titanium', hex: '#2C2C2C', image: 'https://images.unsplash.com/photo-1533228100845-08145b01de14?q=80&w=1470&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '128GB', priceAdd: 0 }, { capacity: '256GB', priceAdd: 100 }, { capacity: '512GB', priceAdd: 300 }],
-      specs: {
-        display: '6.6-inch Super Retina XDR', chip: 'A19 chip', camera: '48MP Fusion + 24MP Ultra Wide',
-        battery: 'Up to 26 hours video playback', storage: '128GB / 256GB / 512GB', weight: '163g',
-      },
-      highlights: ['Thinnest iPhone ever', 'A19 chip', '48MP camera', 'Ceramic Shield front', 'MagSafe'],
-      thumbnail: '/images/iphone.png', images: ['/images/iphone.png'],
+      storageOptions: [
+        { capacity: '256GB', priceAdd: 0 },
+        { capacity: '512GB', priceAdd: 200 },
+        { capacity: '1TB', priceAdd: 400 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1381&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1592890284954-469b60ed7126?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1533228100845-08145b01de14?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1556316384-12c35d30348f?q=80&w=1470&auto=format&fit=crop'
+      ]
     },
-
-    // ── Mac ──
+    // ── MACBOOK PRO 14 M4 ──
     {
-      name: 'MacBook Air 15" M4', slug: 'macbook-air-15-m4', category: catMap.mac, subCategory: 'macbook-air',
-      tagline: 'Strikingly thin. Incredibly powerful.', description: 'The new MacBook Air with M4 chip.',
-      price: 1299, monthlyPrice: 108.25, isFeatured: true, isNewProduct: true, rating: 4.9, reviewCount: 850, stock: 40,
+      name: 'MacBook Pro 14 M4',
+      slug: 'macbook-pro-14-m4',
+      category: catMap.mac,
+      subCategory: 'Laptop',
+      tagline: 'Quyền năng rúng động. Thiết kế mê hoặc.',
+      description: `<p>MacBook Pro 14 với M4 Pro hoặc M4 Max là công cụ chuyên nghiệp cho mọi nhu cầu. Màn hình Liquid Retina XDR cung cấp độ sáng đỉnh cao cùng màu sắc trực thực.</p>`,
+      price: 1599,
+      salePrice: 1549,
+      monthlyPrice: 70,
+      rating: 4.9,
+      reviewCount: 450,
+      stock: 40,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: true,
+      highlights: [
+        'Chip M4 Pro/Max - Hiệu suất đỉnh cao.',
+        'Liquid Retina XDR - Màn hình tốt nhất, 1600 nits.',
+        'Pin 18-22 giờ - Làm việc cả ngày không lo pin.'
+      ],
+      specs: {
+        chip: 'M4 Pro (12-core CPU, 16-core GPU) / M4 Max (14-core CPU, 30-core GPU)',
+        display: 'Liquid Retina XDR (3024 x 1964), 1600 nits Peak, 120Hz',
+        storage: '512GB / 1TB / 2TB / 4TB / 8TB SSD',
+        ports: '3x Thunderbolt 5, HDMI 2.1, SDXC, MagSafe 3',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3',
+        weight: '3.3 lbs / 1.5 kg',
+        dimensions: '12.3 x 8.43 x 0.61 inches',
+        graphics: 'Integrated 16/20-core GPU / Discrete 30-core GPU'
+      },
       colors: [
-        { name: 'Midnight', hex: '#2E3642' }, { name: 'Starlight', hex: '#F0E4D3' },
-        { name: 'Silver', hex: '#E3E4E5' }, { name: 'Space Gray', hex: '#7D7E80' },
+        { name: 'Space Black', hex: '#1D1D1F', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop' },
+        { name: 'Silver', hex: '#E3E4E5', image: 'https://images.unsplash.com/photo-1611186871348-71ce4fb6030c?q=80&w=1470&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '256GB', priceAdd: 0 }, { capacity: '512GB', priceAdd: 200 }, { capacity: '1TB', priceAdd: 400 }, { capacity: '2TB', priceAdd: 600 }],
-      specs: {
-        display: '15.3-inch Liquid Retina, 500 nits', chip: 'Apple M4 chip, 10-core CPU, 10-core GPU',
-        battery: 'Up to 18 hours', storage: '256GB - 2TB SSD', weight: '1.51 kg',
-      },
-      highlights: ['M4 chip', 'Up to 32GB memory', '18-hour battery', 'MagSafe charging', '1080p FaceTime HD camera', 'Liquid Retina display'],
-      thumbnail: '/images/macbook.png', images: ['/images/macbook.png'],
+      storageOptions: [
+        { capacity: '512GB SSD', priceAdd: 0 },
+        { capacity: '1TB SSD', priceAdd: 400 },
+        { capacity: '2TB SSD', priceAdd: 800 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1611186871348-71ce4fb6030c?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1471&auto=format&fit=crop'
+      ]
     },
+    // ── iPAD PRO M4 ──
     {
-      name: 'MacBook Pro 14" M4 Pro', slug: 'macbook-pro-14-m4-pro', category: catMap.mac, subCategory: 'macbook-pro',
-      tagline: 'The most advanced Mac laptops.', description: 'Supercharged by M4 Pro and M4 Max.',
-      price: 1999, monthlyPrice: 166.58, isFeatured: false, isNewProduct: true, rating: 4.9, reviewCount: 620, stock: 30,
+      name: 'iPad Pro M4',
+      slug: 'ipad-pro-m4',
+      category: catMap.ipad,
+      subCategory: 'Pro',
+      tagline: 'Mỏng không tưởng. Mạnh khủng khiếp.',
+      description: `<p>iPad Pro M4 là máy tính bảng mạnh nhất và mỏng nhất. Với màn hình Tandem OLED tuyệt đẹp, đây là công cụ sáng tạo hoàn hảo.</p>`,
+      price: 999,
+      salePrice: 949,
+      monthlyPrice: 45,
+      rating: 4.9,
+      reviewCount: 880,
+      stock: 60,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: false,
+      highlights: [
+        'Chip M4 - Sức mạnh xử lý đột phá.',
+        'Màn hình Tandem OLED - Rực rỡ tuyệt đối.',
+        'Độ dày 5.1mm - Mỏng nhất trong lịch sử iPad.'
+      ],
+      specs: {
+        display: 'Ultra Retina XDR Tandem OLED, 11" / 13", 120Hz, 2000 nits',
+        chip: 'Apple M4 (9-core CPU / 10-core CPU, 10-core GPU)',
+        storage: '256GB / 512GB / 1TB / 2TB SSD',
+        ports: '2x Thunderbolt 5 / USB-C',
+        battery: 'Lên đến 10 giờ lướt web Wi-Fi',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3, optional 5G',
+        weight: '478g / 579g (11" / 13")',
+        dimensions: '10.86 x 7.69 x 0.20 inches'
+      },
       colors: [
-        { name: 'Space Black', hex: '#1E1E1E' }, { name: 'Silver', hex: '#E3E4E5' },
+        { name: 'Space Black', hex: '#1D1D1F', image: 'https://images.unsplash.com/photo-1544244015-0cd4b3ff2851?q=80&w=1073&auto=format&fit=crop' },
+        { name: 'Silver', hex: '#F5F5F7', image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?q=80&w=1071&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '512GB', priceAdd: 0 }, { capacity: '1TB', priceAdd: 200 }, { capacity: '2TB', priceAdd: 400 }],
-      specs: {
-        display: '14.2-inch Liquid Retina XDR, ProMotion', chip: 'Apple M4 Pro, 12-core CPU, 16-core GPU',
-        battery: 'Up to 24 hours', storage: '512GB - 4TB SSD', weight: '1.55 kg',
-      },
-      highlights: ['M4 Pro chip', 'XDR display', '24-hour battery', '3x Thunderbolt 4', 'HDMI 2.1', 'SDXC card slot'],
-      thumbnail: '/images/macbook.png', images: ['/images/macbook.png'],
+      storageOptions: [
+        { capacity: '256GB', priceAdd: 0 },
+        { capacity: '512GB', priceAdd: 150 },
+        { capacity: '1TB', priceAdd: 350 },
+        { capacity: '2TB', priceAdd: 750 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1544244015-0cd4b3ff2851?q=80&w=1073&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1544244015-0cd4b3ff2851?q=80&w=1073&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?q=80&w=1071&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1542744095-2ad4b5d9827d?q=80&w=1470&auto=format&fit=crop'
+      ]
     },
-
-    // ── iPad ──
+    // ── MACBOOK AIR 15 M4 ──
     {
-      name: 'iPad Pro M4', slug: 'ipad-pro-m4', category: catMap.ipad, subCategory: 'ipad-pro',
-      tagline: 'The thinnest, most powerful iPad ever.', description: 'Outrageously powerful. Impossibly thin.',
-      price: 1099, monthlyPrice: 91.58, isFeatured: true, isNewProduct: true, rating: 4.8, reviewCount: 450, stock: 45,
+      name: 'MacBook Air 15 M4',
+      slug: 'macbook-air-15-m4',
+      category: catMap.mac,
+      subCategory: 'Laptop',
+      tagline: 'Siêu mỏng, siêu mạnh cho mọi người.',
+      description: `<p>MacBook Air 15 M4 là sự lựa chọn hoàn hảo cho người dùng cần hiệu năng mạnh mẽ nhưng yêu thích độ mỏng gọn. Với pin tới 18 giờ, bạn có thể làm việc cả ngày ngoài trời.</p>`,
+      price: 1299,
+      salePrice: 1249,
+      monthlyPrice: 55,
+      rating: 4.8,
+      reviewCount: 280,
+      stock: 45,
+      isActive: true,
+      isFeatured: false,
+      isNewProduct: true,
+      highlights: [
+        'Chip M4 - Performance tuyệt vời, tiết kiệm pin.',
+        'Màn hình Retina 15.3 inch - Sắc nét tuyệt đối.',
+        'Pin 18 giờ - Làm việc suốt ngày.'
+      ],
+      specs: {
+        chip: 'Apple M4 (10-core CPU, 10-core GPU, 16-core Neural Engine)',
+        display: 'Liquid Retina (2880 x 1864), 120Hz, 500 nits',
+        storage: '256GB / 512GB / 1TB SSD',
+        ports: 'MagSafe 3, 2x Thunderbolt 3',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3',
+        weight: '3.3 lbs / 1.51 kg',
+        dimensions: '13.6 x 9.5 x 0.44 inches',
+        charging: 'MagSafe 3, USB-C Power Adapter'
+      },
       colors: [
-        { name: 'Silver', hex: '#E3E4E5' }, { name: 'Space Black', hex: '#1E1E1E' },
+        { name: 'Midnight', hex: '#1F1F1F', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop' },
+        { name: 'Starlight', hex: '#F8F7F1', image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1471&auto=format&fit=crop' },
+        { name: 'Space Gray', hex: '#505050', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '256GB', priceAdd: 0 }, { capacity: '512GB', priceAdd: 200 }, { capacity: '1TB', priceAdd: 400 }, { capacity: '2TB', priceAdd: 800 }],
-      specs: {
-        display: '13-inch Ultra Retina XDR OLED, ProMotion', chip: 'Apple M4 chip',
-        camera: '12MP Wide camera', battery: 'Up to 10 hours', storage: '256GB - 2TB', weight: '579g',
-      },
-      highlights: ['M4 chip', 'Ultra Retina XDR display', 'Apple Pencil Pro support', 'Thunderbolt / USB 4', 'Face ID', 'Thinnest Apple product ever'],
-      thumbnail: '/images/ipad.png', images: ['/images/ipad.png'],
+      storageOptions: [
+        { capacity: '256GB', priceAdd: 0 },
+        { capacity: '512GB', priceAdd: 200 },
+        { capacity: '1TB', priceAdd: 400 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1026&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1471&auto=format&fit=crop'
+      ]
     },
+    // ── iPAD AIR 11 M4 ──
     {
-      name: 'iPad Air M3', slug: 'ipad-air-m3', category: catMap.ipad, subCategory: 'ipad-air',
-      tagline: 'Fresh Air.', description: 'Now available in two sizes, powered by M3.',
-      price: 799, monthlyPrice: 66.58, isFeatured: false, isNewProduct: true, rating: 4.7, reviewCount: 380, stock: 55,
+      name: 'iPad Air 11 M4',
+      slug: 'ipad-air-11-m4',
+      category: catMap.ipad,
+      subCategory: 'Air',
+      tagline: 'Năng lực chuyên nghiệp. Giá hợp lý.',
+      description: `<p>iPad Air 11 với chip M4 cung cấp hiệu năng ngang với máy tính xách tay, nhưng với kích thước nhỏ gọn hơn. Màn hình sắc nét và hỗ trợ Apple Pencil Pro làm nó trở thành công cụ sáng tạo tuyệt vời.</p>`,
+      price: 749,
+      salePrice: 699,
+      monthlyPrice: 35,
+      rating: 4.7,
+      reviewCount: 650,
+      stock: 75,
+      isActive: true,
+      isFeatured: false,
+      isNewProduct: true,
+      highlights: [
+        'Chip M4 - Xử lý mượt mà, lung linh.',
+        'Màn hình Liquid Retina 11 inch - Hiển thị đẹp mê hoặc.',
+        'Hỗ trợ Apple Pencil Pro - Vẽ và ghi chú tuyệt hảo.'
+      ],
+      specs: {
+        display: 'Liquid Retina 11-inch (2560 x 1620), 60Hz, anti-reflective',
+        chip: 'Apple M4 (9-core CPU, 10-core GPU, 16-core Neural Engine)',
+        storage: '128GB / 256GB / 512GB / 1TB SSD',
+        ports: 'USB-C with Thunderbolt 3',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3, optional 5G',
+        weight: '329g',
+        dimensions: '10.86 x 7.61 x 0.25 inches',
+        battery: 'Lên đến 10 giờ'
+      },
       colors: [
-        { name: 'Space Gray', hex: '#7D7E80' }, { name: 'Starlight', hex: '#F0E4D3' },
-        { name: 'Purple', hex: '#B8A9C9' }, { name: 'Blue', hex: '#88A4C4' },
+        { name: 'Space Gray', hex: '#424245', image: 'https://images.unsplash.com/photo-1542744095-2ad4b5d9827d?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Silver', hex: '#E8E8EB', image: 'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?q=80&w=1071&auto=format&fit=crop' },
+        { name: 'Blue', hex: '#4A90E2', image: 'https://images.unsplash.com/photo-1542744095-2ad4b5d9827d?q=80&w=1470&auto=format&fit=crop' }
       ],
-      storageOptions: [{ capacity: '128GB', priceAdd: 0 }, { capacity: '256GB', priceAdd: 100 }, { capacity: '512GB', priceAdd: 300 }, { capacity: '1TB', priceAdd: 500 }],
-      specs: {
-        display: '11-inch / 13-inch Liquid Retina', chip: 'Apple M3 chip',
-        camera: '12MP Wide camera', battery: 'Up to 10 hours', storage: '128GB - 1TB', weight: '462g',
-      },
-      highlights: ['M3 chip', 'Liquid Retina display', 'Apple Pencil Pro', 'USB-C', 'Touch ID', 'Center Stage'],
-      thumbnail: '/images/ipad.png', images: ['/images/ipad.png'],
+      storageOptions: [
+        { capacity: '128GB', priceAdd: 0 },
+        { capacity: '256GB', priceAdd: 150 },
+        { capacity: '512GB', priceAdd: 350 },
+        { capacity: '1TB', priceAdd: 750 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1542744095-2ad4b5d9827d?q=80&w=1470&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1542744095-2ad4b5d9827d?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1585790050230-5dd28404ccb9?q=80&w=1071&auto=format&fit=crop'
+      ]
     },
-
-    // ── Watch ──
+    // ── APPLE WATCH ULTRA 3 ──
     {
-      name: 'Apple Watch Ultra 2', slug: 'apple-watch-ultra-2', category: catMap.watch, subCategory: 'watch-ultra-2',
-      tagline: 'Next-level adventure.', description: 'The most rugged and capable Apple Watch pushes the limits.',
-      price: 799, monthlyPrice: 33.29, isFeatured: true, isNewProduct: false, rating: 4.9, reviewCount: 720, stock: 35,
-      colors: [{ name: 'Natural Titanium', hex: '#B0A99F' }],
-      storageOptions: [{ capacity: '64GB', priceAdd: 0 }],
+      name: 'Apple Watch Ultra 3',
+      slug: 'apple-watch-ultra-3',
+      category: catMap.watch,
+      subCategory: 'Ultra',
+      tagline: 'Siêu bền. Siêu thông minh. Siêu đa dạng.',
+      description: `<p>Apple Watch Ultra 3 được thiết kế cho những người yêu thích thể thao mạo hiểm. Khung vỏ Titanium Grade 5 siêu bền và pin 72 giờ giúp bạn khám phá những nơi xa xôi.</p>`,
+      price: 799,
+      salePrice: 749,
+      monthlyPrice: 35,
+      rating: 4.8,
+      reviewCount: 520,
+      stock: 80,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: true,
+      highlights: [
+        'Titanium Grade 5 - Bền gấp 3 lần, nhẹ hơn.',
+        'Pin 72 giờ - Sáu ngày một lần sạc.',
+        'Action Button + Ocean Band - Thiết kế độc đáo.'
+      ],
       specs: {
-        display: '49mm Always-On Retina LTPO2 OLED', chip: 'Apple S9 SiP', battery: 'Up to 72 hours',
-        waterResistance: 'WR100, EN13319', weight: '61.4g',
+        display: 'Retina LTPO OLED, 1000 nits peak brightness',
+        chip: 'Apple S10 SiP (dual-core processor)',
+        battery: 'Lên đến 72 giờ (chế độ bình thường, 36 giờ chế độ bình thường)',
+        connectivity: 'Cellular, Wi-Fi 6E, Bluetooth 5.3, NFC',
+        weight: '61.5 grams',
+        waterResistance: 'Water Resistant 100 meters',
+        sensors: 'Accelerometer, Gyroscope, Barometer, Compass, Always-On Altitude'
       },
-      highlights: ['Titanium case', '72-hour battery life', 'Precision GPS', '100m water resistance', 'Action button', '3000 nit display'],
-      thumbnail: '/images/watch.png', images: ['/images/watch.png'],
-    },
-
-    // ── AirPods ──
-    {
-      name: 'AirPods Pro 2', slug: 'airpods-pro-2', category: catMap.airpods, subCategory: 'airpods-pro-2',
-      tagline: 'Intelligent noise cancellation.', description: 'Pro-level Active Noise Cancellation, Adaptive Audio, and Conversation Awareness.',
-      price: 249, monthlyPrice: 10.37, isFeatured: true, isNewProduct: false, rating: 4.7, reviewCount: 2100, stock: 100,
-      colors: [{ name: 'White', hex: '#F5F5F7' }],
-      storageOptions: [],
-      specs: {
-        chip: 'Apple H2 chip', battery: 'Up to 6 hours (30 hours with case)',
-        connectivity: 'Bluetooth 5.3', waterResistance: 'IPX4',
-      },
-      highlights: ['Active Noise Cancellation', 'Adaptive Audio', 'USB-C charging', 'Personalized Spatial Audio', 'MagSafe charging case', 'IP54 dust, sweat resistance'],
-      thumbnail: '/images/airpods.png', images: ['/images/airpods.png'],
-    },
-    {
-      name: 'AirPods Max', slug: 'airpods-max', category: catMap.airpods, subCategory: 'airpods-max',
-      tagline: 'A perfect balance of high-fidelity audio.', description: 'The magic of AirPods. The over-ear experience.',
-      price: 549, monthlyPrice: 22.87, isFeatured: false, isNewProduct: true, rating: 4.6, reviewCount: 580, stock: 25,
       colors: [
-        { name: 'Midnight', hex: '#1D1D2C' }, { name: 'Blue', hex: '#7BA5D1' },
-        { name: 'Purple', hex: '#B4A1C8' }, { name: 'Orange', hex: '#E8A87C' }, { name: 'Starlight', hex: '#F5E6D3' },
+        { name: 'Titanium Natural', hex: '#808080', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Deep Blue Titanium', hex: '#005192', image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=1469&auto=format&fit=crop' }
       ],
-      storageOptions: [],
-      specs: {
-        chip: 'Apple H2 chip', battery: 'Up to 20 hours',
-        connectivity: 'Bluetooth 5.3', weight: '395g',
-      },
-      highlights: ['Apple H2 chip', 'Active Noise Cancellation', 'Personalized Spatial Audio', '20-hour battery', 'USB-C', 'Digital Crown'],
-      thumbnail: '/images/airpods.png', images: ['/images/airpods.png'],
+      storageOptions: [
+        { capacity: '49mm (Standard)', priceAdd: 0 },
+        { capacity: '49mm (Cellular)', priceAdd: 100 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1470&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1546868871-7041f2a55e12?q=80&w=1469&auto=format&fit=crop'
+      ]
     },
+    // ── iPHONE 17 ──
+    {
+      name: 'iPhone 17',
+      slug: 'iphone-17',
+      category: catMap.iphone,
+      subCategory: 'Standard',
+      tagline: 'Sức mạnh. Hiệu năng. Giá tốt.',
+      description: `<p>iPhone 17 mang lại sức mạnh của chip A19 với giá tốt nhất trong dòng sản phẩm. Camera kép 48MP chụp hình đẹp lung linh với mọi điều kiện ánh sáng.</p>`,
+      price: 799,
+      salePrice: 749,
+      monthlyPrice: 35,
+      rating: 4.7,
+      reviewCount: 2100,
+      stock: 150,
+      isActive: true,
+      isFeatured: false,
+      isNewProduct: true,
+      highlights: [
+        'Chip A19 - Hiệu suất mạnh mẽ, pin lâu.',
+        'Camera kép 48MP + 12MP ultrawide - Chụp từ mọi góc độ.',
+        'Thiết kế Corning Gorilla Glass Armor - Bền gấp 3 lần.'
+      ],
+      specs: {
+        display: '6.1-inch Super Retina XDR OLED, 120Hz, 1000 nits',
+        chip: 'Apple A19 (6-core CPU, 5-core GPU, 16-core Neural Engine)',
+        camera: 'Main: 48MP | Ultrawide: 12MP 120° | Front: 12MP',
+        battery: 'Pin 3900 mAh, sạc 25W, sạc không dây',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3, Dual SIM (nano-SIM + eSIM)',
+        waterResistance: 'IP68 - Chống nước 6 mét, 30 phút',
+        weight: '172 grams',
+        dimensions: '5.8 x 2.8 x 0.31 inches'
+      },
+      colors: [
+        { name: 'Jet Black', hex: '#1D1D1F', image: 'https://images.unsplash.com/photo-1592286518556-ab9fbb2f6e1c?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Arctic White', hex: '#F5F5F7', image: 'https://images.unsplash.com/photo-1511707267537-b85faf00021e?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Ocean Blue', hex: '#0066CC', image: 'https://images.unsplash.com/photo-1592286518556-ab9fbb2f6e1c?q=80&w=1470&auto=format&fit=crop' }
+      ],
+      storageOptions: [
+        { capacity: '128GB', priceAdd: 0 },
+        { capacity: '256GB', priceAdd: 100 },
+        { capacity: '512GB', priceAdd: 300 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1592286518556-ab9fbb2f6e1c?q=80&w=1470&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1592286518556-ab9fbb2f6e1c?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1511707267537-b85faf00021e?q=80&w=1470&auto=format&fit=crop'
+      ]
+    },
+    // ── AIRPODS PRO 4 ──
+    {
+      name: 'AirPods Pro 4',
+      slug: 'airpods-pro-4',
+      category: catMap.airpods,
+      subCategory: 'Premium',
+      tagline: 'Âm thanh siêu sạch. Bộ lọc rất bền.',
+      description: `<p>AirPods Pro 4 là tai nghe không dây premium với khả năng khử tiếng ồn hoạt động chủ động tuyệt vời. Chip H3 mang lại trải nghiệm âm thanh chân thực nhất.</p>`,
+      price: 299,
+      salePrice: 279,
+      monthlyPrice: 13,
+      rating: 4.8,
+      reviewCount: 1850,
+      stock: 200,
+      isActive: true,
+      isFeatured: true,
+      isNewProduct: true,
+      highlights: [
+        'Chip H3 - Khuôn khổ tích hợp cao, âm thanh tốt hơn.',
+        'Chế độ lọc chủ động + Chế độ Xuyên suốt - Điều chỉnh âm tùy ý.',
+        'Pin 6 giờ, hộp sạc 30 giờ - Dùng mọi lúc.'
+      ],
+      specs: {
+        display: 'Wireless, Bluetooth 5.3 with H3 chip',
+        chip: 'Apple H3 Chip',
+        battery: 'Pin nghe 6 giờ (ANC bật), Case sạc 30 giờ',
+        connectivity: 'AAC, AAC-ELD, ULAW, SBC codec support',
+        audio: 'Adaptive Audio, Conversation Awareness, Personalized Volume',
+        sensors: 'Accelerometer, Proximity sensor, Touch',
+        waterResistance: 'IPX4 - Chống mồ hôi, sprinkle'
+      },
+      colors: [
+        { name: 'White', hex: '#FFFFFF', image: 'https://images.unsplash.com/photo-1559056169-641ef2588ef0?q=80&w=1470&auto=format&fit=crop' },
+        { name: 'Midnight', hex: '#1F1F1F', image: 'https://images.unsplash.com/photo-1487215078519-e21cc028cb29?q=80&w=1470&auto=format&fit=crop' }
+      ],
+      storageOptions: [
+        { capacity: 'Standard (Single Pair)', priceAdd: 0 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1559056169-641ef2588ef0?q=80&w=1470&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1559056169-641ef2588ef0?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1487215078519-e21cc028cb29?q=80&w=1470&auto=format&fit=crop'
+      ]
+    },
+    // ── MAC STUDIO M4 MAX ──
+    {
+      name: 'Mac Studio M4 Max',
+      slug: 'mac-studio-m4-max',
+      category: catMap.mac,
+      subCategory: 'Desktop',
+      tagline: 'Máy tính để bàn chuyên nghiệp siêu mạnh.',
+      description: `<p>Mac Studio M4 Max là máy tính để bàn dành cho các chuyên gia sáng tạo. Với GPU 30-core mạnh mẽ, nó xử lý video 4K/6K mượt mà như nuốt nước.</p>`,
+      price: 1999,
+      salePrice: 1899,
+      monthlyPrice: 85,
+      rating: 4.9,
+      reviewCount: 350,
+      stock: 35,
+      isActive: true,
+      isFeatured: false,
+      isNewProduct: true,
+      highlights: [
+        'Chip M4 Max - Xử lý 4K/6K video như nuốt nước.',
+        'GPU 30-core lên đến 64GB vRAM - Render siêu tốc.',
+        'Port Thunderbolt 5 x2 + USB-C x2 - Kết nối rộng mở.'
+      ],
+      specs: {
+        chip: 'Apple M4 Max (14-core CPU, 30-core GPU)',
+        display: 'Hỗ trợ 3 màn hình bên ngoài (6K/4K/5K)',
+        storage: '500GB/ 1TB / 2TB / 4TB SSD',
+        ports: '2x Thunderbolt 5, 2x USB-C 3.1, HDMI 2.1, Gigabit Ethernet, Kensington Lock',
+        connectivity: 'Wi-Fi 6E, Bluetooth 5.3',
+        weight: '2.3 kg / 5.1 lbs',
+        dimensions: '7.7 x 7.7 x 3.7 inches',
+        graphics: 'M4 Max GPU with up to 64GB unified memory'
+      },
+      colors: [
+        { name: 'Silver', hex: '#E3E4E5', image: 'https://images.unsplash.com/photo-1587829741301-dc798b83dadc?q=80&w=1470&auto=format&fit=crop' }
+      ],
+      storageOptions: [
+        { capacity: '500GB SSD', priceAdd: 0 },
+        { capacity: '1TB SSD', priceAdd: 400 },
+        { capacity: '2TB SSD', priceAdd: 800 },
+        { capacity: '4TB SSD', priceAdd: 1600 }
+      ],
+      thumbnail: 'https://images.unsplash.com/photo-1587829741301-dc798b83dadc?q=80&w=1470&auto=format&fit=crop',
+      images: [
+        'https://images.unsplash.com/photo-1587829741301-dc798b83dadc?q=80&w=1470&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1470&auto=format&fit=crop'
+      ]
+    }
   ];
 
-  const prods = await Product.insertMany(productsData);
-  console.log(`  ✅ ${prods.length} products created`);
-
-  // ══════════════════════════════════════
-  // BANNERS
-  // ══════════════════════════════════════
+  await Product.insertMany(productsData);
+  
+  // ── BANNERS ──
   const bannersData = [
-    { title: 'iPhone 17 Pro', subtitle: 'The ultimate iPhone.', link: '/product/iphone-17-pro', shopLink: '/shop/iphone', bgColor: '#000', textColor: 'light', order: 1 },
-    { title: 'iPad Air', subtitle: 'Fresh Air.', link: '/product/ipad-air-m3', shopLink: '/shop/ipad', bgColor: '#f5f5f7', textColor: 'dark', order: 2 },
-    { title: 'MacBook Air', subtitle: 'Sky-high performance meets an ultraportable design.', link: '/product/macbook-air-15-m4', shopLink: '/shop/mac', bgColor: '#1a1a3e', textColor: 'light', order: 3 },
+    { title: 'Mac mini M4', subtitle: 'Siêu nhỏ. Siêu khủng.', link: '/product/mac-mini-m4', bgColor: '#000', type: 'main', order: 1 },
+    { title: 'iPhone 17 Pro Max', subtitle: 'Kỷ nguyên AI thực thụ.', link: '/product/iphone-17-pro-max', bgColor: '#161617', type: 'main', order: 2 },
+    { title: 'Macbook Pro', subtitle: 'Hiệu năng rúng động.', link: '/product/macbook-pro-14-m4', bgColor: '#f5f5f7', textColor: 'dark', type: 'secondary', order: 3 },
+    { title: 'Apple Watch Ultra', subtitle: 'Bền bỉ nhất thế giới.', link: '/shop/watch', bgColor: '#000', type: 'secondary', order: 4 }
   ];
-  const banners = await Banner.insertMany(bannersData);
-  console.log(`  ✅ ${banners.length} banners created`);
+  await Banner.insertMany(bannersData);
 
-  // ══════════════════════════════════════
-  // ADMIN USER
-  // ══════════════════════════════════════
+  // ── ADMIN USER ──
   const adminExists = await User.findOne({ email: 'admin@apple.com' });
   if (!adminExists) {
     await User.create({ name: 'Admin', email: 'admin@apple.com', password: 'admin123', role: 'admin', phone: '0900000000' });
-    console.log('  ✅ Admin user created (admin@apple.com / admin123)');
   }
 
-  const demoExists = await User.findOne({ email: 'user@example.com' });
-  if (!demoExists) {
-    await User.create({
-      name: 'Nguyễn Văn A', email: 'user@example.com', password: '12345678', phone: '0901234567',
-      addresses: [{ fullName: 'Nguyễn Văn A', phone: '0901234567', street: '123 Nguyễn Huệ', city: 'TP. Hồ Chí Minh', district: 'Quận 1', isDefault: true }],
-    });
-    console.log('  ✅ Demo user created (user@example.com / 12345678)');
-  }
-
-  console.log('\n🎉 Database seeded successfully!');
+  console.log('🎉 Banner System & PRO-GRADE Catalog Reset Completed!');
   process.exit(0);
 };
 
-seedData().catch(err => { console.error('❌ Seed error:', err); process.exit(1); });
+seedData().catch(err => { console.error('❌ Reset error:', err); process.exit(1); });

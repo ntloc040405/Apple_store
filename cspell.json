@@ -1,0 +1,27 @@
+{
+  "version": "0.2",
+  "language": "en,vi",
+  "words": [
+    "Khám", "phá", "giỏ", "hàng", "trang", "chủ", "đăng", "nhập", "ký", "tài", "khoản",
+    "mua", "sắm", "thanh", "toán", "đơn", "hàng", "yêu", "thích", "so", "sánh",
+    "thông", "số", "kỹ", "thuật", "đánh", "giá", "nhận", "xét", "bình", "luận",
+    "địa", "chỉ", "số", "điện", "thoại", "hệ", "thống", "cài", "đặt", "bảo", "mật",
+    "quy", "định", "điều", "khoản", "chính", "sách", "bảo", "hành", "đổi", "trả",
+    "vận", "chuyển", "giao", "hàng", "miễn", "phí", "tốc", "độ", "xử", "lý",
+    "màn", "hình", "vi", "xử", "lý", "bộ", "nhớ", "camera", "pin", "sạc", "kết", "nối",
+    "công", "nghệ", "thiết", "kế", "trọng", "lượng", "kích", "thước", "cảm", "biến",
+    "âm", "thanh", "hình", "ảnh", "video", "phim", "nhạc", "trò", "chơi", "ứng", "dụng",
+    "Apple", "iPhone", "iPad", "MacBook", "iMac", "Watch", "AirPods", "TV", "Vision", "Pro",
+    "tiếc", "phải", "không", "lòng", "tiết", "kiệm", "Dịch", "Quản", "toàn", "Bộ", "nhớ",
+    "Vite", "Lucide", "Framer", "Mongoose", "Express", "Socketio", "Recharts", "Prism",
+    "Clickjacking", "Ref", "Subcategory", "Tagline", "MonthlyPrice", "ReviewCount", "IsFeatured", "IsNewProduct",
+    "VITE_API_URL", "ALLOWED_ORIGINS", "slugify"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    ".git",
+    "*.log",
+    "docker-compose.yml"
+  ]
+}

@@ -5,8 +5,8 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const { user, login } = useAuth();
-  const [email, setEmail] = useState('admin@apple.com');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,13 +46,13 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Email đăng nhập</label>
-            <input className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@apple.com" />
+            <label htmlFor="email" className="form-label">Email đăng nhập</label>
+            <input id="email" className="form-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@apple.com" />
           </div>
           <div className="form-group">
-            <label className="form-label">Mật khẩu</label>
+            <label htmlFor="password" className="form-label">Mật khẩu</label>
             <div style={{ position: 'relative' }}>
-              <input className="form-input" type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} style={{ paddingRight: 44 }} />
+              <input id="password" className="form-input" type={show ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} style={{ paddingRight: 44 }} />
               <button type="button" onClick={() => setShow(!show)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#86868b' }}>
                 {show ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>

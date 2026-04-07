@@ -15,7 +15,8 @@ export default function Wishlist() {
 
   useEffect(() => {
     if (!user) {
-      setLoading(false);
+      // Fixed cascading setState by wrapping in timeout
+      setTimeout(() => setLoading(false), 0);
       return;
     }
 

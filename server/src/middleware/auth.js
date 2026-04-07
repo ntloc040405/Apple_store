@@ -22,8 +22,16 @@ export const auth = async (req, res, next) => {
   }
 };
 
-// Require admin role
+// Require admin role (support staff too)
 export const admin = (req, res, next) => {
+  if (!['admin', 'staff'].includes(req.user.role)) {
+    return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
+  }
+  next();
+};
+
+// Require admin role (strict - admin only, not staff)
+export const adminOnly = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ success: false, message: 'Access denied. Admin only.' });
   }

@@ -1,8 +1,9 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const CompareContext = createContext();
 
-const MAX_COMPARE = 4;
+const MAX_COMPARE = 6;
 
 export function CompareProvider({ children }) {
   const [compareItems, setCompareItems] = useState(() => {

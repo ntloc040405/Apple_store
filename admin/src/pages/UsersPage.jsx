@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Shield, UserX, UserCheck } from 'lucide-react';
+import { Search, UserX, UserCheck } from 'lucide-react';
 import API from '../api/client';
 
 export default function UsersPage() {
@@ -11,8 +11,8 @@ export default function UsersPage() {
   const [toast, setToast] = useState(null);
 
   const fetchUsers = useCallback(() => {
-    // setLoading(true); // Handled by initialization or only in async path if needed
-    API.get('/admin/users', { params: { page, limit: 20, search } })
+    setLoading(true);
+    API.get('/admin/users', { params: { page, limit: 20, search, role: 'user' } })
       .then(res => {
         setUsers(res.data.data.users);
         setPagination(res.data.data.pagination);
@@ -22,18 +22,12 @@ export default function UsersPage() {
   }, [page, search]);
 
   useEffect(() => {
-    fetchUsers();
+    // Fixed cascading setState by wrapping in timeout
+    const timer = setTimeout(fetchUsers, 0);
+    return () => clearTimeout(timer);
   }, [fetchUsers]);
 
   const showToast = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
-
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      const res = await API.put(`/admin/users/${userId}/role`, { role: newRole });
-      showToast(res.data.message);
-      fetchUsers();
-    } catch (err) { showToast(err.response?.data?.message || 'Error', 'error'); }
-  };
 
   const handleToggleActive = async (userId) => {
     try {
@@ -46,31 +40,44 @@ export default function UsersPage() {
   return (
     <div className="page-content">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <div><h2 style={{ fontSize: 28, fontWeight: 700 }}>Khách hàng</h2><p style={{ fontSize: 14, color: '#86868b' }}>{pagination.total || 0} người dùng</p></div>
-        <div className="search-bar"><Search size={16} /><input placeholder="Tìm tên hoặc email..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} /></div>
+        <div>
+          <h2 style={{ fontSize: 28, fontWeight: 700 }}>👥 Khách hàng</h2>
+          <p style={{ fontSize: 14, color: '#86868b' }}>{pagination.total || 0} người dùng</p>
+        </div>
+        <div className="search-bar">
+          <Search size={16} />
+          <input 
+            placeholder="Tìm tên hoặc email..." 
+            value={search} 
+            onChange={e => { setSearch(e.target.value); setPage(1); }} 
+          />
+        </div>
       </div>
 
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
         <table className="data-table">
-          <thead><tr><th>Người dùng</th><th>Số điện thoại</th><th>Vai trò</th><th>Đơn hàng</th><th>Tổng chi tiêu</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Người dùng</th>
+              <th>Số điện thoại</th>
+              <th>Đơn hàng</th>
+              <th>Tổng chi tiêu</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
           <tbody>
-            {loading ? <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40 }}>Đang tải...</td></tr> :
+            {loading ? <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>Đang tải...</td></tr> :
+              users.length === 0 ? <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: '#86868b' }}>Không tìm thấy người dùng nào</td></tr> :
               users.map(u => (
                 <tr key={u._id}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: u.role === 'admin' ? 'linear-gradient(135deg,#0071e3,#af52de)' : '#e8e8ed', display: 'flex', alignItems: 'center', justifyContent: 'center', color: u.role === 'admin' ? '#fff' : '#86868b', fontSize: 14, fontWeight: 600, flexShrink: 0 }}>{u.name?.[0]?.toUpperCase()}</div>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#e8e8ed', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#86868b', fontSize: 14, fontWeight: 600, flexShrink: 0 }}>{u.name?.[0]?.toUpperCase()}</div>
                       <div><div style={{ fontWeight: 600, fontSize: 14 }}>{u.name}</div><div style={{ fontSize: 12, color: '#86868b' }}>{u.email}</div></div>
                     </div>
                   </td>
                   <td style={{ fontSize: 13 }}>{u.phone || '—'}</td>
-                  <td>
-                    <select className="form-select" style={{ width: 100, padding: '4px 8px', fontSize: 12, fontWeight: 600, color: u.role === 'admin' ? '#0071e3' : '#1d1d1f' }}
-                      value={u.role} onChange={e => handleRoleChange(u._id, e.target.value)}>
-                      <option value="user">Người dùng</option>
-                      <option value="admin">Quản trị</option>
-                    </select>
-                  </td>
                   <td style={{ fontWeight: 500 }}>{u.orderCount || 0}</td>
                   <td style={{ fontWeight: 600 }}>${(u.totalSpent || 0).toLocaleString()}</td>
                   <td><span className={`status-badge ${u.isActive ? 'active' : 'inactive'}`}>{u.isActive ? 'Đang hoạt động' : 'Đã khóa'}</span></td>

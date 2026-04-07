@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import API from '../api/client';
 
@@ -8,7 +9,9 @@ export function AuthProvider({ children }) {
     const saved = localStorage.getItem('apple_user');
     return saved ? JSON.parse(saved) : null;
   });
-  const [loading, setLoading] = useState(true);
+  
+  // Initialize loading based on token presence to avoid cascading setState in useEffect
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('apple_token'));
 
   useEffect(() => {
     const token = localStorage.getItem('apple_token');
@@ -24,9 +27,8 @@ export function AuthProvider({ children }) {
           setUser(null);
         })
         .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
     }
+    // No else needed as loading is already false if no token
   }, []);
 
   const login = async (email, password) => {

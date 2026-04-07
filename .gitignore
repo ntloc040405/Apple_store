@@ -1,0 +1,49 @@
+# Node.js
+node_modules/
+jspm_packages/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment Variables (IMPORTANT: Never commit these)
+.env
+.env.*
+!.env.example
+*.local
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Build/Dist
+dist/
+dist-ssr/
+build/
+out/
+.next/
+
+# Local data/logs/uploads
+logs/
+*.log
+excel/
+uploads/
+tmp/
+
+# IDE files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Docker
+.dockerignore
+docker-compose.override.yml

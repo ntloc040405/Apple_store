@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6, select: false },
   phone: { type: String, default: '' },
   avatar: { type: String, default: '' },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['user', 'admin', 'staff'], default: 'user' },
   addresses: [addressSchema],
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });

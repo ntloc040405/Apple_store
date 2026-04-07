@@ -2,17 +2,30 @@ import User from '../models/User.js';
 import fs from 'fs';
 import path from 'path';
 import Order from '../models/Order.js';
+import { validatePagination, validateString, escapeRegex } from '../utils/validators.js';
 
 // GET /api/admin/users
 export const getAllUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 20, search, role } = req.query;
+    const { page, limit, search, role } = req.query;
+    const { page: validPage, limit: validLimit } = validatePagination(page, limit);
+    
     const filter = {};
-    if (search) filter.$or = [{ name: { $regex: search, $options: 'i' } }, { email: { $regex: search, $options: 'i' } }];
+    if (search) {
+      const safeSearch = escapeRegex(search.trim()).slice(0, 50);
+      filter.$or = [
+        { name: { $regex: safeSearch, $options: 'i' } },
+        { email: { $regex: safeSearch, $options: 'i' } }
+      ];
+    }
     if (role && role !== 'all') filter.role = role;
 
     const total = await User.countDocuments(filter);
-    const users = await User.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(Number(limit)).lean();
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((validPage - 1) * validLimit)
+      .limit(validLimit)
+      .lean();
 
     // Attach order count per user
     const enriched = await Promise.all(users.map(async (u) => {
@@ -24,7 +37,18 @@ export const getAllUsers = async (req, res) => {
       return { ...u, orderCount, totalSpent: totalSpent[0]?.total || 0 };
     }));
 
-    res.json({ success: true, data: { users: enriched, pagination: { total, page: Number(page), totalPages: Math.ceil(total / limit) } } });
+    res.json({
+      success: true,
+      data: {
+        users: enriched,
+        pagination: {
+          total,
+          page: validPage,
+          limit: validLimit,
+          totalPages: Math.ceil(total / validLimit)
+        }
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -42,11 +66,16 @@ export const getUserById = async (req, res) => {
   }
 };
 
-// PUT /api/admin/users/:id/role
+// PUT /api/admin/users/:id/role (Admin only)
 export const updateRole = async (req, res) => {
   try {
+    // ⚠️ CONSTRAINT: Only admin can change roles, not staff
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Chỉ quản trị viên có thể thay đổi vai trò.' });
+    }
+
     const { role } = req.body;
-    if (!['user', 'admin'].includes(role)) return res.status(400).json({ success: false, message: 'Role phải là "user" hoặc "admin".' });
+    if (!['user', 'admin', 'staff'].includes(role)) return res.status(400).json({ success: false, message: 'Role phải là "user", "admin" hoặc "staff".' });
 
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
@@ -57,7 +86,7 @@ export const updateRole = async (req, res) => {
     }
 
     // ⚠️ CONSTRAINT: Cannot demote last admin
-    if (user.role === 'admin' && role === 'user') {
+    if (user.role === 'admin' && role !== 'admin') {
       const adminCount = await User.countDocuments({ role: 'admin' });
       if (adminCount <= 1) {
         return res.status(400).json({ success: false, message: 'Không thể hạ quyền admin cuối cùng. Hệ thống cần ít nhất 1 admin.' });
@@ -72,11 +101,16 @@ export const updateRole = async (req, res) => {
   }
 };
 
-// PUT /api/admin/users/:id/toggle-active
+// PUT /api/admin/users/:id/toggle-active (Admin only)
 export const toggleActive = async (req, res) => {
   try {
+    // ⚠️ CONSTRAINT: Only admin can manage admin/staff accounts, staff can only manage regular users
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+    if (req.user.role === 'staff' && ['admin', 'staff'].includes(user.role)) {
+      return res.status(403).json({ success: false, message: 'Nhân viên không thể quản lý tài khoản admin hoặc nhân viên khác.' });
+    }
 
     // ⚠️ CONSTRAINT: Cannot deactivate yourself
     if (user._id.toString() === req.user._id.toString()) {
@@ -107,7 +141,41 @@ export const toggleActive = async (req, res) => {
   }
 };
 
-// GET /api/admin/dashboard
+// POST /api/admin/staff (Create staff account - Admin only)
+export const createStaff = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Name, email and password are required.' });
+    }
+
+    const exists = await User.findOne({ email });
+    if (exists) return res.status(400).json({ success: false, message: 'Email đã tồn tại.' });
+
+    const staff = await User.create({ name, email, password, phone, role: 'staff' });
+    res.status(201).json({ 
+      success: true, 
+      message: 'Tài khoản nhân viên đã được tạo thành công',
+      data: staff
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// DELETE /api/admin/staff/:id (Delete staff - Admin only)
+export const deleteStaff = async (req, res) => {
+  try {
+    const staff = await User.findById(req.params.id);
+    if (!staff) return res.status(404).json({ success: false, message: 'Staff not found.' });
+    if (staff.role !== 'staff') return res.status(400).json({ success: false, message: 'Chỉ có thể xóa tài khoản nhân viên.' });
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Tài khoản nhân viên đã bị xóa.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 export const getDashboard = async (req, res) => {
   try {
     const Product = (await import('../models/Product.js')).default;

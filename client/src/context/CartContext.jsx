@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useReducer, useEffect } from 'react';
 import { cartReducer } from './CartReducer';
 import { CartContext, useCart } from './CartContextUI';

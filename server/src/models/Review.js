@@ -3,19 +3,22 @@ import mongoose from 'mongoose';
 const reviewSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  rating: { type: Number, required: true, min: 1, max: 5 },
+  parentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Review', default: null },
+  rating: { type: Number, default: 0, min: 0, max: 5 },
   title: { type: String, default: '' },
   comment: { type: String, default: '' },
+  images: [{ type: String }], // Array of image URLs
   isVerifiedPurchase: { type: Boolean, default: false },
 }, { timestamps: true });
 
-// One review per user per product
-reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+// Allow multiple reviews/comments per user per product
+reviewSchema.index({ product: 1, createdAt: -1 });
+reviewSchema.index({ parentId: 1 });
 
 // After save/remove, update product rating
 reviewSchema.statics.calcAverageRating = async function (productId) {
   const stats = await this.aggregate([
-    { $match: { product: productId } },
+    { $match: { product: productId, parentId: null, rating: { $gt: 0 } } },
     { $group: { _id: '$product', avgRating: { $avg: '$rating' }, count: { $sum: 1 } } },
   ]);
   const Product = mongoose.model('Product');

@@ -39,6 +39,12 @@ const productSchema = new mongoose.Schema({
     waterResistance: { type: String, default: '' },
     weight: { type: String, default: '' },
     dimensions: { type: String, default: '' },
+    audio: { type: String, default: '' },
+    sensors: { type: String, default: '' },
+    authentication: { type: String, default: '' },
+    ports: { type: String, default: '' },
+    charging: { type: String, default: '' },
+    graphics: { type: String, default: '' },
   },
 
   highlights: [{ type: String }],

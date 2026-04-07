@@ -2,7 +2,18 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import config from '../config/index.js';
 
-const generateToken = (id) => jwt.sign({ id }, config.jwtSecret, { expiresIn: config.jwtExpire });
+const generateAccessToken = (id) => jwt.sign({ id }, config.jwtSecret, { expiresIn: config.jwtExpire });
+const generateRefreshToken = (id) => jwt.sign({ id }, config.jwtSecret + '_refresh', { expiresIn: config.jwtRefreshExpire });
+
+// Helper to set refresh token cookie
+const setRefreshTokenCookie = (res, refreshToken) => {
+  res.cookie('apple_refresh_token', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
 
 // POST /api/auth/register
 export const register = async (req, res) => {
@@ -15,8 +26,11 @@ export const register = async (req, res) => {
     if (exists) return res.status(400).json({ success: false, message: 'Email đã tồn tại.' });
 
     const user = await User.create({ name, email, password, phone });
-    const token = generateToken(user._id);
-    res.status(201).json({ success: true, message: 'Đăng ký thành công', data: { user, token } });
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+    setRefreshTokenCookie(res, refreshToken);
+    
+    res.status(201).json({ success: true, message: 'Đăng ký thành công', data: { user, token: accessToken } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -35,8 +49,48 @@ export const login = async (req, res) => {
     }
     if (!user.isActive) return res.status(403).json({ success: false, message: 'Account deactivated.' });
 
-    const token = generateToken(user._id);
-    res.json({ success: true, data: { user, token } });
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+    setRefreshTokenCookie(res, refreshToken);
+    
+    res.json({ success: true, data: { user, token: accessToken } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// POST /api/auth/refresh - Refresh access token
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.apple_refresh_token;
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: 'Refresh token not found. Please login again.' });
+    }
+
+    const decoded = jwt.verify(refreshToken, config.jwtSecret + '_refresh');
+    const user = await User.findById(decoded.id);
+    
+    if (!user || !user.isActive) {
+      res.clearCookie('apple_refresh_token');
+      return res.status(401).json({ success: false, message: 'Invalid or expired session. Please login again.' });
+    }
+
+    const newAccessToken = generateAccessToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+    setRefreshTokenCookie(res, newRefreshToken);
+    
+    res.json({ success: true, token: newAccessToken });
+  } catch (err) {
+    res.clearCookie('apple_refresh_token');
+    res.status(401).json({ success: false, message: 'Session expired. Please login again.' });
+  }
+};
+
+// POST /api/auth/logout
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie('apple_refresh_token');
+    res.json({ success: true, message: 'Đăng xuất thành công' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

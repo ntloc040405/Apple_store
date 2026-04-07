@@ -3,12 +3,11 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { CompareProvider } from './context/CompareContext';
 import { WishlistProvider } from './context/WishlistContext';
-import CompareBar from './components/CompareBar';
+import ErrorBoundary from './components/ErrorBoundary';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import Store from './pages/Store';
-import Category from './pages/Category';
 import ShopCategory from './pages/ShopCategory';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
@@ -36,7 +35,7 @@ function AppLayout() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
-        <Route path="/category/:slug" element={<Category />} />
+        <Route path="/category/:category" element={<ShopCategory />} />
         <Route path="/shop/:category" element={<ShopCategory />} />
         <Route path="/product/:slug" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
@@ -49,7 +48,6 @@ function AppLayout() {
         <Route path="/wishlist" element={<Wishlist />} />
       </Routes>
       <Footer />
-      <CompareBar />
     </>
   );
 }
@@ -57,15 +55,17 @@ function AppLayout() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <CompareProvider>
-            <WishlistProvider>
-              <AppLayout />
-            </WishlistProvider>
-          </CompareProvider>
-        </CartProvider>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <CartProvider>
+            <CompareProvider>
+              <WishlistProvider>
+                <AppLayout />
+              </WishlistProvider>
+            </CompareProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }
