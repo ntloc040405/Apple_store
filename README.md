@@ -59,7 +59,7 @@ Yêu cầu: Máy đã cài đặt Docker & Docker Compose. **Đặc biệt: Bạ
 
 2. **Truy cập các dịch vụ**:
     - **Client (Người mua)**: `http://localhost:3000`
-    - **Admin (Quản lý)**: `http://localhost:4000`
+    - **Admin (Quản lý)**: `http://localhost:4001`
     - **API Server**: `http://localhost:5001`
     - **Database UI (Thay thế Compass)**: `http://localhost:8081` (Dùng để xem và sửa dữ liệu trực tiếp trên trình duyệt)
 
