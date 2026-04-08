@@ -23,13 +23,13 @@ services:
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
       ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USER:-admin}
-      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-change_me_in_production}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-1234567890llll@}
     depends_on:
       - mongodb
     networks:
       - apple_store_net
 
-  # 3. Backend API
+  # 3. Backend APa
   app-server:
     build: ./server
     container_name: apple_store_server
@@ -39,7 +39,7 @@ services:
     environment:
       PORT: 5001
       MONGODB_URI: mongodb://mongodb:27017/apple-store
-      JWT_SECRET: ${JWT_SECRET:-apple_store_secret_key_change_in_production}
+      JWT_SECRET: ${JWT_SECRET:-1234567890llll@}
       JWT_EXPIRE: 7d
       ALLOWED_ORIGINS: http://localhost:3000,http://localhost:4000
     depends_on:
