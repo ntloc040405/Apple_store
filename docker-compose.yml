@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 1. Database MongoDB
+  # 1. MongoDB
   mongodb:
     image: mongo:latest
     container_name: apple_store_mongodb
@@ -13,7 +13,7 @@ services:
     networks:
       - apple_store_net
 
-  # 2. Giao diện quản lý Database (Thay thế cho MongoDB Compass)
+  # 2. Mongo Express (web UI thay Compass)
   mongo-express:
     image: mongo-express:latest
     container_name: apple_store_mongo_express
@@ -29,7 +29,7 @@ services:
     networks:
       - apple_store_net
 
-  # 3. Backend APa
+  # 3. Backend
   app-server:
     build: ./server
     container_name: apple_store_server
@@ -47,7 +47,18 @@ services:
     networks:
       - apple_store_net
 
-  # 4. Frontend Client
+  # 🔥 4. SEED DATA (QUAN TRỌNG)
+  mongo-seed:
+    build: ./server
+    container_name: apple_store_seed
+    depends_on:
+      - mongodb
+    command: sh -c "sleep 10 && npm run seed"
+    restart: "no"
+    networks:
+      - apple_store_net
+
+  # 5. Client
   app-client:
     build:
       context: ./client
@@ -62,7 +73,7 @@ services:
     networks:
       - apple_store_net
 
-  # 5. Frontend Admin
+  # 6. Admin
   app-admin:
     build:
       context: ./admin
